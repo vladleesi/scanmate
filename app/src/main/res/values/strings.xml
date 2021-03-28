@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ultimate-scan-android</string>
-    <string name="text_open_camera">Open camera</string>
+    <string name="text_open_custom_camera">Open custom camera</string>
+    <string name="text_open_device_camera">Open device camera</string>
 </resources>

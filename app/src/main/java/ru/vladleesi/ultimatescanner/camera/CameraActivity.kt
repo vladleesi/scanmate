@@ -15,6 +15,10 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
+        initCamera()
+    }
+
+    private fun initCamera() {
         // Create an instance of Camera
         mCamera = getCameraInstance()
         mCamera?.setDisplayOrientation(90)
@@ -38,5 +42,9 @@ class CameraActivity : AppCompatActivity() {
             // Camera is not available (in use or does not exist)
             null // returns null if camera is unavailable
         }
+    }
+
+    companion object {
+        const val REQUEST_CODE_FROM_CAMERA = 96
     }
 }
