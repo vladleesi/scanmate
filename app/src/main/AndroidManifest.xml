@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.vladleesi.ultimatescan">
+    package="ru.vladleesi.ultimatescanner">
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ultimatescanandroid">
-        <activity android:name=".MainActivity">
+        <activity android:name="ru.vladleesi.ultimatescanner.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".camera.CameraActivity"
+            android:name="ru.vladleesi.ultimatescanner.camera.CameraActivity"
             android:screenOrientation="portrait" />
     </application>
 

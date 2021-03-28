@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescan
+package ru.vladleesi.ultimatescanner
 
 import android.Manifest
 import android.content.Intent
@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import ru.vladleesi.ultimatescan.camera.CameraActivity
-import ru.vladleesi.ultimatescan.utils.PermissionUtils
+import ru.vladleesi.ultimatescanner.camera.CameraActivity
+import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 
 
 class MainActivity : AppCompatActivity() {

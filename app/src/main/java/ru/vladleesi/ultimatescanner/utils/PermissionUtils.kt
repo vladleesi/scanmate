@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescan.utils
+package ru.vladleesi.ultimatescanner.utils
 
 import android.content.Context
 import android.content.pm.PackageManager

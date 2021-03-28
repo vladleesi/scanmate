@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescan.camera
+package ru.vladleesi.ultimatescanner.camera
 
 import android.content.Context
 import android.hardware.Camera

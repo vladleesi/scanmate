@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescan
+package ru.vladleesi.ultimatescanner
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

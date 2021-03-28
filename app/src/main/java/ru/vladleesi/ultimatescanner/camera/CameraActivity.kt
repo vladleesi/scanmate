@@ -1,10 +1,10 @@
-package ru.vladleesi.ultimatescan.camera
+package ru.vladleesi.ultimatescanner.camera
 
 import android.hardware.Camera
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import ru.vladleesi.ultimatescan.R
+import ru.vladleesi.ultimatescanner.R
 
 class CameraActivity : AppCompatActivity() {
 
