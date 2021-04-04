@@ -136,5 +136,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_CODE_FROM_CAMERA = 96
+        const val CAMERA_PERMISSION_REQUEST = 234
     }
 }
