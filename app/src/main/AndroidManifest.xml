@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Ultimatescanandroid">
+        android:theme="@style/Theme.PrimaryTheme">
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -35,14 +35,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ru.vladleesi.ultimatescanner.camera.CameraActivity"
-            android:screenOrientation="portrait">
-
-            <meta-data
-                android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-                android:value="barcode" />
-
-        </activity>
+            android:name=".camera.CameraPreviewActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

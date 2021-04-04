@@ -3,7 +3,6 @@ package ru.vladleesi.ultimatescanner
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -20,7 +19,7 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import ru.vladleesi.ultimatescanner.camera.CameraActivity
+import ru.vladleesi.ultimatescanner.camera.CameraPreviewActivity
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import java.io.File
 import java.io.IOException
@@ -41,12 +40,8 @@ class MainActivity : AppCompatActivity() {
 
         PermissionUtils.requestPermission(this)
 
-        findViewById<Button>(R.id.b_open_custom_camera).setOnClickListener { openCustomCamera() }
         findViewById<Button>(R.id.b_open_device_camera).setOnClickListener { openDeviceCamera() }
-    }
-
-    private fun openCustomCamera() {
-        startActivity(Intent(baseContext, CameraActivity::class.java))
+        findViewById<Button>(R.id.b_open_camera_preview).setOnClickListener { openCameraPreview() }
     }
 
     private fun openDeviceCamera() {
@@ -71,18 +66,23 @@ class MainActivity : AppCompatActivity() {
             if (takePictureIntent.resolveActivity(baseContext.packageManager) != null)
                 startActivityForResult(
                     takePictureIntent,
-                    CameraActivity.REQUEST_CODE_FROM_CAMERA
+                    REQUEST_CODE_FROM_CAMERA
                 )
         }
+    }
+
+    private fun openCameraPreview() {
+        startActivity(Intent(baseContext, CameraPreviewActivity::class.java))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CameraActivity.REQUEST_CODE_FROM_CAMERA && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_CODE_FROM_CAMERA && resultCode == Activity.RESULT_OK) {
             val file = photoFromCameraTempFile ?: File(photoFromCameraTempUri.toString())
             val bitmap = BitmapFactory.decodeFile(file.path)
-            runDetector(bitmap)
+            val image = FirebaseVisionImage.fromBitmap(bitmap)
+            runDetector(image)
         }
     }
 
@@ -99,8 +99,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun runDetector(bitmap: Bitmap) {
-        val image = FirebaseVisionImage.fromBitmap(bitmap)
+    private fun runDetector(image: FirebaseVisionImage) {
 
         val options = FirebaseVisionBarcodeDetectorOptions.Builder()
             .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
@@ -122,6 +121,11 @@ class MainActivity : AppCompatActivity() {
                 FirebaseVisionBarcode.TYPE_TEXT -> {
                     Toast.makeText(baseContext, item.rawValue, Toast.LENGTH_SHORT).show()
                 }
+                else -> Toast.makeText(
+                    baseContext,
+                    "Unknown value type: ${item.valueType}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -131,6 +135,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val CAMERA_PERMISSION_REQUEST = 234
+        const val REQUEST_CODE_FROM_CAMERA = 96
     }
 }

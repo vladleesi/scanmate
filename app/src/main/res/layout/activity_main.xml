@@ -8,15 +8,15 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/b_open_custom_camera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_open_custom_camera" />
-
-    <Button
         android:id="@+id/b_open_device_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/text_open_device_camera" />
+
+    <Button
+        android:id="@+id/b_open_camera_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_open_camera_preview" />
 
 </LinearLayout>
