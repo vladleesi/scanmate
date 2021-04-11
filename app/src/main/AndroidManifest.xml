@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="ru.vladleesi.ultimatescanner">
+
+    <!-- Internet access -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -13,9 +17,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PrimaryTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -27,15 +34,20 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name="ru.vladleesi.ultimatescanner.MainActivity">
+        <activity android:name="ru.vladleesi.ultimatescanner.MainActivity" />
+        <activity
+            android:name=".activity.CameraPreviewActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".camera.CameraPreviewActivity"
+            android:name=".activity.SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HistoryActivity"
             android:screenOrientation="portrait" />
     </application>
 

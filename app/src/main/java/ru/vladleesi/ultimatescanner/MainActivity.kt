@@ -19,7 +19,7 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import ru.vladleesi.ultimatescanner.camera.CameraPreviewActivity
+import ru.vladleesi.ultimatescanner.activity.CameraPreviewActivity
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import java.io.File
 import java.io.IOException

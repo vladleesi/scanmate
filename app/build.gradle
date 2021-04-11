@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.google.gms.google-services'
+    id 'kotlin-android-extensions'
+    id "kotlin-kapt"
 }
 
 android {
@@ -31,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -46,6 +52,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
+    // Preferences
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+
     // Camera 2 API
     def camerax_version = "1.1.0-alpha03"
     // CameraX core library using camera2 implementation
@@ -58,6 +67,28 @@ dependencies {
     // Firebase ML Vision
     implementation 'com.google.android.gms:play-services-vision:20.1.3'
     implementation 'com.google.firebase:firebase-ml-vision-barcode-model:16.1.2'
+
+    // OkHttp
+    def okhttp_version = "4.9.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+
+    // Retrofit
+    def retrofit_version = "2.9.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:adapter-rxjava3:$retrofit_version"
+
+    // Gson (for POJO)
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    // RxJava3
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+
+    // Room
+    def room_version = "2.2.6"
+    api "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
