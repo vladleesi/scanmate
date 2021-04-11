@@ -1,6 +1,8 @@
 package ru.vladleesi.ultimatescanner.activity
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -28,10 +30,17 @@ class HistoryActivity : AppCompatActivity() {
         binding.rvHistoryList.adapter = adapter
 
         repo.getHistory().subscribe({ historyList ->
-            historyList?.let { adapter.setData(historyList) }
+            Handler(Looper.getMainLooper()).post {
+                historyList?.let { adapter.setData(historyList) }
+            }
         }, {
-            Toast.makeText(baseContext, "При загрузки истории произошла ошибка", Toast.LENGTH_SHORT)
-                .show()
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    baseContext,
+                    "ERROR: Can't load history list",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         })
     }
 }

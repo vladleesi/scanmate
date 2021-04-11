@@ -33,7 +33,6 @@ import ru.vladleesi.ultimatescanner.model.ScanResult
 import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import java.io.File
-import java.lang.Math.abs
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
@@ -57,7 +56,6 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
 
         makeStatusBarTransparent()
@@ -73,9 +71,6 @@ class CameraPreviewActivity : AppCompatActivity() {
             )
         }
 
-        // Set up the listener for take photo button
-//        findViewById<Button>(R.id.camera_capture_button).setOnClickListener { takePhoto() }
-
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -83,15 +78,12 @@ class CameraPreviewActivity : AppCompatActivity() {
             startActivity(Intent(baseContext, SettingsActivity::class.java))
         }
 
+        binding.fabCapture.setOnClickListener { takePhoto() }
+
         binding.fabOpenHistory.setOnClickListener {
             startActivity(Intent(baseContext, HistoryActivity::class.java))
         }
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.menu_toolbar_camera_preview, menu)
-//        return super.onCreateOptionsMenu(menu)
-//    }
 
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
@@ -110,8 +102,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        // Set up image capture listener, which is triggered after photo has
-        // been taken
+        // Set up image capture listener, which is triggered after photo has been taken
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
@@ -125,6 +116,12 @@ class CameraPreviewActivity : AppCompatActivity() {
                     val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+
+                    startActivity(Intent(baseContext, CaptureActivity::class.java).apply {
+//                        putExtra(CaptureActivity.CAPTURED_BITMAP, binding.viewFinder.bitmap)
+                        putExtra(CaptureActivity.CAPTURED_URI, savedUri)
+                    })
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 }
             })
     }
@@ -214,8 +211,8 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private fun runDetector(
         image: FirebaseVisionImage,
-        originalImageWidth: Int,
-        originalImageHeight: Int
+        capturedImageWidth: Int,
+        capturedImageHeight: Int
     ) {
 
         val options = FirebaseVisionBarcodeDetectorOptions.Builder()
@@ -225,7 +222,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(applicationContext)
         mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
         mDetector.detectInImage(image)
-            .addOnSuccessListener { processResult(it, originalImageWidth, originalImageHeight) }
+            .addOnSuccessListener { processResult(it, capturedImageWidth, capturedImageHeight) }
             .addOnFailureListener { processFailure(it) }
     }
 
@@ -233,38 +230,38 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private fun processResult(
         barcodeResults: List<FirebaseVisionBarcode>,
-        originalImageWidth: Int,
-        originalImageHeight: Int
+        capturedImageWidth: Int,
+        capturedImageHeight: Int
     ) {
 
         binding.boBarcodeOverlay.overlay(
             ScanResult(
                 barcodeResults,
-                originalImageWidth,
-                originalImageHeight
+                capturedImageWidth,
+                capturedImageHeight
             )
         )
 
-        barcodeResults.forEach { barcode ->
-
-            count += 1
-            if (count == 1) {
-                val raw = barcode.rawValue
-
-                // TODO: Отобразить область распознавания на экране
-                val rect = barcode.boundingBox
-                val corner = barcode.cornerPoints
-
-                val type = getType(barcode)
-
-                val value = raw.toString()
-                Log.e(TAG, value)
-
-                repo.saveToHistory(type, value).subscribe()
-
-                Toast.makeText(baseContext, "$type: $value", Toast.LENGTH_SHORT).show()
-            }
-        }
+//        barcodeResults.forEach { barcode ->
+//
+//            count += 1
+//            if (count == 1) {
+//                val raw = barcode.rawValue
+//
+//                // TODO: Отобразить область распознавания на экране
+//                val rect = barcode.boundingBox
+//                val corner = barcode.cornerPoints
+//
+//                val type = getType(barcode)
+//
+//                val value = raw.toString()
+//                Log.e(TAG, value)
+//
+//                repo.saveToHistory(type, value).subscribe()
+//
+//                Toast.makeText(baseContext, "$type: $value", Toast.LENGTH_SHORT).show()
+//            }
+//        }
     }
 
     private fun getType(barcode: FirebaseVisionBarcode): String {
@@ -340,7 +337,7 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private fun aspectRatio(width: Int, height: Int): Int {
         val previewRatio = width.coerceAtLeast(height).toDouble() / width.coerceAtMost(height)
-        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
+        if (kotlin.math.abs(previewRatio - RATIO_4_3_VALUE) <= kotlin.math.abs(previewRatio - RATIO_16_9_VALUE)) {
             return AspectRatio.RATIO_4_3
         }
         return AspectRatio.RATIO_16_9

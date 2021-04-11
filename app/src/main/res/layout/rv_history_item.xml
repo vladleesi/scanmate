@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_4"
-        android:autoLink="all"
+        android:autoLink="web"
         android:linksClickable="true"
         android:textColor="@color/black"
         android:textColorLink="@color/purple_700"
