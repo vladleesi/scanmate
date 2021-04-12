@@ -8,12 +8,14 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
 import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
 import java.lang.ref.WeakReference
@@ -30,6 +32,11 @@ class CaptureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        binding.tbToolbar.navigationIcon =
+            ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
+        binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.tbToolbar.title = "Детальная информация"
 
         val uri = intent.getParcelableExtra<Uri>(CAPTURED_URI)
 
