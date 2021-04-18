@@ -59,8 +59,8 @@ class CaptureActivity : AppCompatActivity() {
         bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
         binding.mbSendForAnalyze.setOnClickListener {
-            uri?.let { it1 ->
-                analyzeRepo.analyze(it1)
+            uri?.let {
+                analyzeRepo.analyze(uri)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { state ->
