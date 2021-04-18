@@ -1,6 +1,5 @@
 package ru.vladleesi.ultimatescanner.data.remote.services
 
-import io.reactivex.rxjava3.core.Single
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -13,8 +12,8 @@ import ru.vladleesi.ultimatescanner.data.remote.model.AnalyzeResultApi
 interface AnalyzeServices {
 
     @GET
-    fun testConnection(@Url endpoint: String): Single<Response<ResponseBody>>
+    suspend fun testConnection(@Url endpoint: String): Response<ResponseBody>
 
     @POST
-    fun analyze(@Url endpoint: String, @Body body: RequestBody): Single<Response<AnalyzeResultApi>>
+    suspend fun analyze(@Url endpoint: String, @Body body: RequestBody): Response<AnalyzeResultApi>
 }

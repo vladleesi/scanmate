@@ -4,7 +4,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivitySettingsBinding
@@ -33,15 +36,24 @@ class SettingsActivity : AppCompatActivity() {
                 )
                 .commit()
 
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            lifecycleScope.launch {
+                Toast.makeText(
+                    baseContext,
+                    "ERROR: ${throwable.message ?: throwable.toString()}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         binding.mbTestConnection.setOnClickListener {
-            AnalyzeRepo(WeakReference(baseContext)).testConnection()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Toast.makeText(baseContext, it, Toast.LENGTH_LONG).show()
-                }, {
-                    Toast.makeText(baseContext, it.message ?: it.toString(), Toast.LENGTH_LONG)
-                        .show()
-                })
+
+            GlobalScope.launch(handler) {
+                val message = AnalyzeRepo(WeakReference(applicationContext)).testConnectionAsync()
+                lifecycleScope.launch {
+                    Toast.makeText(baseContext, message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

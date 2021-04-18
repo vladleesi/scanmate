@@ -2,12 +2,9 @@ package ru.vladleesi.ultimatescanner.data.repository
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.preference.PreferenceManager
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -33,16 +30,16 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
             .getString("endpoint", "/analyze") ?: "/analyze"
     }
 
-    fun testConnection(): Single<String> {
-        return service.testConnection(endpointFromPrefs)
-            .map { "${it.code()} ${it.message()}" }
-            .onErrorReturn { it.message ?: it.toString() }
+    suspend fun testConnectionAsync(): String {
+        val response = service
+            .testConnection(endpointFromPrefs)
+        return "${response.code()} ${response.message()}"
     }
 
-    fun analyze(uri: Uri, discovered: Array<String>?): Single<AnalyzeState?> {
+    suspend fun analyze(uri: Uri, discovered: Array<String>?): AnalyzeState {
 
-        val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return Single.just(
-            AnalyzeState.Error(IllegalAccessException("Uploaded file not created"))
+        val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return AnalyzeState.Error(
+            IllegalAccessException("Uploaded file not created")
         )
 
         val mediaType =
@@ -54,30 +51,26 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
             .addFormDataPart("discovered", discovered.toJson())
             .build()
 
-        return service.analyze(endpointFromPrefs, requestBody)
-            .doOnError { Log.d(TAG, it.message ?: it.toString()) }
-            .doOnSuccess { Log.i(TAG, "Analyze have been complete") }
-            .map { response ->
-                if (response.code() == 200) {
-                    AnalyzeState.Success(response.body()?.data)
-                } else {
-                    AnalyzeState.Error(null)
-                }
-            }
+        val response = service.analyze(endpointFromPrefs, requestBody)
+        return if (response.code() == 200) {
+            AnalyzeState.Success(response.body()?.data)
+        } else {
+            AnalyzeState.Error(null)
+        }
     }
 
-    fun saveToHistory(type: String, value: String): Completable {
-        val simpleDateFormatTo = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
-        val date = simpleDateFormatTo.format(Date())
-        return Completable.fromRunnable {
+    suspend fun saveToHistory(type: String, value: String) {
+        return withContext(Dispatchers.IO) {
+            val simpleDateFormatTo = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+            val date = simpleDateFormatTo.format(Date())
             appDatabase?.historyDao()?.insert(HistoryEntity(type, value, date))
-        }.subscribeOn(Schedulers.io())
+        }
     }
 
-    fun getHistory(): Observable<List<HistoryEntity>?> {
-        return Observable.fromCallable {
+    suspend fun getHistory(): List<HistoryEntity>? {
+        return withContext(Dispatchers.IO) {
             appDatabase?.historyDao()?.getAll()
-        }.subscribeOn(Schedulers.io())
+        }
     }
 
     companion object {

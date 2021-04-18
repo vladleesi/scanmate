@@ -1,11 +1,13 @@
 package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityHistoryBinding
@@ -29,18 +31,22 @@ class HistoryActivity : AppCompatActivity() {
 
         binding.rvHistoryList.adapter = adapter
 
-        repo.getHistory().subscribe({ historyList ->
-            Handler(Looper.getMainLooper()).post {
-                historyList?.let { adapter.setData(historyList) }
-            }
-        }, {
-            Handler(Looper.getMainLooper()).post {
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            lifecycleScope.launch {
                 Toast.makeText(
                     baseContext,
-                    "ERROR: Can't load history list",
+                    "ERROR: Can't load history list\n${throwable.message ?: throwable.toString()}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        })
+        }
+
+        GlobalScope.launch(handler) {
+            repo.getHistory()?.let { historyList ->
+                lifecycleScope.launch {
+                    adapter.setData(historyList)
+                }
+            }
+        }
     }
 }

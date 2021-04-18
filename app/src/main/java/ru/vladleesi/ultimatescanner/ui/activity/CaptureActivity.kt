@@ -9,13 +9,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
@@ -52,7 +56,7 @@ class CaptureActivity : AppCompatActivity() {
             )
         }
         binding.ivCapturedImage.setImageBitmap(bitmap)
-//        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
+        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
         val barcodeSet =
             intent.getSerializableExtra(CameraPreviewActivity.BARCODE_SET_VALUE) as? HashSet<String>
@@ -68,26 +72,33 @@ class CaptureActivity : AppCompatActivity() {
 
         binding.mbSendForAnalyze.setOnClickListener {
             uri?.let {
-                analyzeRepo.analyze(uri, barcodeSet?.toTypedArray())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { state ->
-                            when (state) {
-                                is AnalyzeState.Success -> Toast.makeText(
-                                    baseContext,
-                                    state.data,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                is AnalyzeState.Loading -> Toast.makeText(
-                                    baseContext,
-                                    "Loading",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                is AnalyzeState.Error -> showErrorToast()
-                                else -> showErrorToast()
-                            }
-                        },
-                        { showErrorToast() })
+                val handler = CoroutineExceptionHandler { _, throwable ->
+                    lifecycleScope.launch {
+                        Toast.makeText(
+                            baseContext,
+                            "ERROR: ${throwable.message ?: throwable.toString()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                GlobalScope.launch(handler) {
+                    val state = analyzeRepo.analyze(uri, barcodeSet?.toTypedArray())
+                    lifecycleScope.launch {
+                        when (state) {
+                            is AnalyzeState.Success -> Toast.makeText(
+                                baseContext,
+                                state.data,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AnalyzeState.Loading -> Toast.makeText(
+                                baseContext,
+                                "Loading",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AnalyzeState.Error -> showErrorToast()
+                        }
+                    }
+                }
             }
         }
     }
@@ -132,7 +143,9 @@ class CaptureActivity : AppCompatActivity() {
             val result = "$type: $value"
             binding.tvValue.text = result
 
-            analyzeRepo.saveToHistory(type, value).subscribe()
+            GlobalScope.launch(Dispatchers.IO) {
+                analyzeRepo.saveToHistory(type, value)
+            }
         }
     }
 

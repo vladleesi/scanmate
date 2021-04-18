@@ -2,6 +2,7 @@ package ru.vladleesi.ultimatescanner.data.remote
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -29,6 +30,7 @@ class RetrofitClient {
             .addConverterFactory(MoshiConverterFactory.create(MoshiHolder.moshi))
             // TODO: All retrofit requests with Schedulers.io is ok?
             .addCallAdapterFactory(RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .client(okHttpClient())
             .build()
     }
