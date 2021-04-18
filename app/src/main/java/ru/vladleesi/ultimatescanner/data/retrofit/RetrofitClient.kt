@@ -17,11 +17,13 @@ class RetrofitClient {
 
     @Throws(IllegalArgumentException::class)
     private fun buildClient(context: WeakReference<Context>): Retrofit {
+        val defaultUrl = "http://test.ru"
+        var baseUrlFromPrefs = PreferenceManager.getDefaultSharedPreferences(context.get())
+            .getString("url", defaultUrl)
+        if (baseUrlFromPrefs?.endsWith("/") == false)
+            baseUrlFromPrefs = "$baseUrlFromPrefs/"
         return Retrofit.Builder()
-            .baseUrl(
-                PreferenceManager.getDefaultSharedPreferences(context.get()).getString("url", null)
-                    ?: throw IllegalArgumentException("Base url is null")
-            )
+            .baseUrl(baseUrlFromPrefs ?: defaultUrl)
             .addConverterFactory(NullOnEmptyConverterFactory())
             .addConverterFactory(GsonConverterFactory.create())
             // TODO: All retrofit requests with Schedulers.io is ok?

@@ -34,7 +34,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name="ru.vladleesi.ultimatescanner.MainActivity" />
         <activity
             android:name=".activity.CameraPreviewActivity"
             android:screenOrientation="portrait">

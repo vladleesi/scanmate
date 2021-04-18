@@ -1,11 +1,15 @@
 package ru.vladleesi.ultimatescanner.activity
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivitySettingsBinding
 import ru.vladleesi.ultimatescanner.fragments.SettingsPreferenceFragment
+import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
+import java.lang.ref.WeakReference
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -28,5 +32,16 @@ class SettingsActivity : AppCompatActivity() {
                     SettingsPreferenceFragment.TAG
                 )
                 .commit()
+
+        binding.mbTestConnection.setOnClickListener {
+            AnalyzeRepo(WeakReference(baseContext)).testConnection()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Toast.makeText(baseContext, it, Toast.LENGTH_LONG).show()
+                }, {
+                    Toast.makeText(baseContext, it.message ?: it.toString(), Toast.LENGTH_LONG)
+                        .show()
+                })
+        }
     }
 }

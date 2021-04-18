@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <EditTextPreference
         android:icon="@drawable/ic_baseline_insert_link_24"
         android:key="url"
-        android:title="Url"
+        android:title="Base url"
+        app:defaultValue="http://test.ru/"
         app:useSimpleSummaryProvider="true" />
+
+    <EditTextPreference
+        android:icon="@drawable/ic_baseline_outlined_flag_24"
+        android:key="endpoint"
+        android:title="Endpoint"
+        app:defaultValue="analyze"
+        app:useSimpleSummaryProvider="true" />
+
 </androidx.preference.PreferenceScreen>

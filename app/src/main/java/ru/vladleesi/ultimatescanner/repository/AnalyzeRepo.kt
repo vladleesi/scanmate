@@ -3,6 +3,7 @@ package ru.vladleesi.ultimatescanner.repository
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.preference.PreferenceManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -14,6 +15,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import ru.vladleesi.ultimatescanner.data.retrofit.RetrofitClient
 import ru.vladleesi.ultimatescanner.data.room.AppDatabase
 import ru.vladleesi.ultimatescanner.data.room.entity.HistoryEntity
+import ru.vladleesi.ultimatescanner.model.AnalyzeState
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
@@ -25,9 +27,20 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
     private val appDatabase by lazy { AppDatabase.invoke(contextWeakReference) }
 
-    fun analyze(uri: Uri): Single<Boolean> {
+    fun testConnection(): Single<String> {
+        val endpoint = PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
+            .getString("endpoint", "/analyze") ?: "/analyze"
 
-        val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return Single.create { }
+        return service.testConnection(endpoint)
+            .map { "${it.code()} ${it.message()}" }
+            .onErrorReturn { it.message ?: it.toString() }
+    }
+
+    fun analyze(uri: Uri): Single<AnalyzeState?> {
+
+        val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return Single.just(
+            AnalyzeState.Error(IllegalAccessException("Uploaded file not created"))
+        )
 
         val mediaType =
             if (file.endsWith("png")) "image/png".toMediaTypeOrNull() else "image/jpeg".toMediaTypeOrNull()
@@ -37,10 +50,18 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
             .addFormDataPart("image", file.name, file.asRequestBody(mediaType))
             .build()
 
-        return service.analyze(requestBody)
-            .map { true }
+        val endpoint = PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
+            .getString("endpoint", "/analyze") ?: "/analyze"
+
+        return service.analyze(endpoint, requestBody)
             .doOnError { Log.d(TAG, it.message ?: it.toString()) }
             .doOnSuccess { Log.i(TAG, "Analyze have been complete") }
+            .map {
+                if (it.contentLength() > 0)
+                    AnalyzeState.Success
+                else
+                    AnalyzeState.Error(null)
+            }
     }
 
     fun saveToHistory(type: String, value: String): Completable {

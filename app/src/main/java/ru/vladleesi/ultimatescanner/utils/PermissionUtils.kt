@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import ru.vladleesi.ultimatescanner.MainActivity
+import ru.vladleesi.ultimatescanner.activity.CameraPreviewActivity
 
 class PermissionUtils {
 
@@ -22,7 +22,7 @@ class PermissionUtils {
                 ActivityCompat.requestPermissions(
                     activity,
                     arrayOf(Manifest.permission.CAMERA),
-                    MainActivity.CAMERA_PERMISSION_REQUEST
+                    CameraPreviewActivity.CAMERA_PERMISSION_REQUEST
                 )
             }
         }

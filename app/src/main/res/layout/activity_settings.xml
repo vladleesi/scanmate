@@ -26,4 +26,16 @@
         android:background="@color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mb_test_connection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_32"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Test connection"
+        app:layout_anchor="@id/fcv_main_container"
+        app:layout_anchorGravity="center"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -27,13 +27,13 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
 import ru.vladleesi.ultimatescanner.model.ScanResult
-import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
+import ru.vladleesi.ultimatescanner.utils.RxJavaErrorHandler
 import java.io.File
-import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -45,8 +45,6 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityCameraPreviewBinding.inflate(layoutInflater) }
 
-    private val repo by lazy { AnalyzeRepo(WeakReference(applicationContext)) }
-
     private lateinit var imageCapture: ImageCapture
 
     private lateinit var outputDirectory: File
@@ -57,6 +55,11 @@ class CameraPreviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        RxJavaPlugins.setErrorHandler(RxJavaErrorHandler())
+
+        outputDirectory = getOutputDirectory()
+        clearMediaDirectory()
 
         makeStatusBarTransparent()
 
@@ -71,7 +74,6 @@ class CameraPreviewActivity : AppCompatActivity() {
             )
         }
 
-        outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         binding.fabOpenSettings.setOnClickListener {
@@ -85,6 +87,12 @@ class CameraPreviewActivity : AppCompatActivity() {
         }
     }
 
+    private fun clearMediaDirectory() {
+        outputDirectory.listFiles()?.forEach {
+            it.delete()
+        }
+    }
+
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         if (!::imageCapture.isInitialized) {
@@ -95,7 +103,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         val photoFile = File(
             outputDirectory,
             SimpleDateFormat(
-                FILENAME_FORMAT, Locale.US
+                FILENAME_FORMAT, Locale.getDefault()
             ).format(System.currentTimeMillis()) + ".jpg"
         )
 
@@ -383,6 +391,9 @@ class CameraPreviewActivity : AppCompatActivity() {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+
+        const val REQUEST_CODE_FROM_CAMERA = 96
+        const val CAMERA_PERMISSION_REQUEST = 234
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0

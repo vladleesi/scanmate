@@ -15,8 +15,10 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
+import ru.vladleesi.ultimatescanner.model.AnalyzeState
 import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
 import java.lang.ref.WeakReference
 
@@ -58,15 +60,26 @@ class CaptureActivity : AppCompatActivity() {
 
         binding.mbSendForAnalyze.setOnClickListener {
             uri?.let { it1 ->
-                analyzeRepo.analyze(it1).subscribe(
-                    {
-                        if (it) {
-                            finish()
-                        } else {
-                            showErrorToast()
-                        }
-                    },
-                    { showErrorToast() })
+                analyzeRepo.analyze(it1)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { state ->
+                            when (state) {
+                                is AnalyzeState.Success -> Toast.makeText(
+                                    baseContext,
+                                    "Success",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                is AnalyzeState.Loading -> Toast.makeText(
+                                    baseContext,
+                                    "Loading",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                is AnalyzeState.Error -> showErrorToast()
+                                else -> showErrorToast()
+                            }
+                        },
+                        { showErrorToast() })
             }
         }
     }
