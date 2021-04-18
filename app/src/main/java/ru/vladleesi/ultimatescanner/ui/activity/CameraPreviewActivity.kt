@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.activity
+package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -30,7 +30,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
-import ru.vladleesi.ultimatescanner.model.ScanResult
+import ru.vladleesi.ultimatescanner.ui.model.ScanResult
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import ru.vladleesi.ultimatescanner.utils.RxJavaErrorHandler
 import java.io.File
@@ -126,9 +126,12 @@ class CameraPreviewActivity : AppCompatActivity() {
                     Log.d(TAG, msg)
 
                     startActivity(Intent(baseContext, CaptureActivity::class.java).apply {
-//                        putExtra(CaptureActivity.CAPTURED_BITMAP, binding.viewFinder.bitmap)
                         putExtra(CaptureActivity.CAPTURED_URI, savedUri)
+                        putExtra(BARCODE_SET_VALUE, barcodeSet)
                     })
+                    if (barcodeSet.isNotEmpty()) {
+                        barcodeSet.clear()
+                    }
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 }
             })
@@ -234,7 +237,7 @@ class CameraPreviewActivity : AppCompatActivity() {
             .addOnFailureListener { processFailure(it) }
     }
 
-    private var count = 0
+    private val barcodeSet = hashSetOf<String?>()
 
     private fun processResult(
         barcodeResults: List<FirebaseVisionBarcode>,
@@ -250,92 +253,8 @@ class CameraPreviewActivity : AppCompatActivity() {
             )
         )
 
-//        barcodeResults.forEach { barcode ->
-//
-//            count += 1
-//            if (count == 1) {
-//                val raw = barcode.rawValue
-//
-//                // TODO: Отобразить область распознавания на экране
-//                val rect = barcode.boundingBox
-//                val corner = barcode.cornerPoints
-//
-//                val type = getType(barcode)
-//
-//                val value = raw.toString()
-//                Log.e(TAG, value)
-//
-//                repo.saveToHistory(type, value).subscribe()
-//
-//                Toast.makeText(baseContext, "$type: $value", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-    }
-
-    private fun getType(barcode: FirebaseVisionBarcode): String {
-        return when (barcode.valueType) {
-            FirebaseVisionBarcode.TYPE_URL -> {
-//                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.rawValue)))
-                Log.e(TAG, "TYPE_URL")
-                "TYPE_URL"
-            }
-            FirebaseVisionBarcode.TYPE_TEXT -> {
-//                    Toast.makeText(baseContext, item.rawValue, Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "TYPE_TEXT")
-                "TYPE_TEXT"
-            }
-            FirebaseVisionBarcode.TYPE_CALENDAR_EVENT -> {
-                Log.e(TAG, "TYPE_CALENDAR_EVENT")
-                "TYPE_CALENDAR_EVENT"
-            }
-            FirebaseVisionBarcode.TYPE_CONTACT_INFO -> {
-                Log.e(TAG, "TYPE_CONTACT_INFO")
-                "TYPE_CONTACT_INFO"
-            }
-            FirebaseVisionBarcode.TYPE_EMAIL -> {
-                Log.e(TAG, "TYPE_EMAIL")
-                "TYPE_EMAIL"
-            }
-            FirebaseVisionBarcode.TYPE_PHONE -> {
-                Log.e(TAG, "TYPE_PHONE")
-                "TYPE_PHONE"
-            }
-            FirebaseVisionBarcode.TYPE_WIFI -> {
-                Log.e(TAG, "TYPE_WIFI")
-                "TYPE_WIFI"
-            }
-            FirebaseVisionBarcode.TYPE_GEO -> {
-                Log.e(TAG, "TYPE_GEO")
-                "TYPE_GEO"
-            }
-            FirebaseVisionBarcode.TYPE_UNKNOWN -> {
-                Log.e(TAG, "TYPE_UNKNOWN")
-                "TYPE_UNKNOWN"
-            }
-            FirebaseVisionBarcode.TYPE_DRIVER_LICENSE -> {
-                Log.e(TAG, "TYPE_DRIVER_LICENSE")
-                "TYPE_DRIVER_LICENSE"
-            }
-            FirebaseVisionBarcode.TYPE_PRODUCT -> {
-                Log.e(TAG, "TYPE_PRODUCT")
-                "TYPE_PRODUCT"
-            }
-            FirebaseVisionBarcode.TYPE_SMS -> {
-                Log.e(TAG, "TYPE_SMS")
-                "TYPE_SMS"
-            }
-            FirebaseVisionBarcode.TYPE_ISBN -> {
-                Log.e(TAG, "TYPE_ISBN")
-                "TYPE_ISBN"
-            }
-            else -> {
-                Toast.makeText(
-                    baseContext,
-                    "Unknown value type: ${barcode.valueType}",
-                    Toast.LENGTH_LONG
-                ).show()
-                "Unknown value type"
-            }
+        barcodeResults.forEach {
+            barcodeSet.add("${CaptureActivity.getType(it.valueType)}: ${it.rawValue}")
         }
     }
 
@@ -394,6 +313,8 @@ class CameraPreviewActivity : AppCompatActivity() {
 
         const val REQUEST_CODE_FROM_CAMERA = 96
         const val CAMERA_PERMISSION_REQUEST = 234
+
+        const val BARCODE_SET_VALUE = "barcodeSetValue"
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0

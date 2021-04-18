@@ -35,7 +35,7 @@
         </provider>
 
         <activity
-            android:name=".activity.CameraPreviewActivity"
+            android:name="ru.vladleesi.ultimatescanner.ui.activity.CameraPreviewActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,13 +43,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name="ru.vladleesi.ultimatescanner.ui.activity.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.HistoryActivity"
+            android:name="ru.vladleesi.ultimatescanner.ui.activity.HistoryActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.CaptureActivity"
+            android:name="ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity"
             android:screenOrientation="portrait" />
     </application>
 

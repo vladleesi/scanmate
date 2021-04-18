@@ -1,11 +1,11 @@
-package ru.vladleesi.ultimatescanner.data.room
+package ru.vladleesi.ultimatescanner.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ru.vladleesi.ultimatescanner.data.room.dao.HistoryDao
-import ru.vladleesi.ultimatescanner.data.room.entity.HistoryEntity
+import ru.vladleesi.ultimatescanner.data.local.dao.HistoryDao
+import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 import java.lang.ref.WeakReference
 
 @Database(

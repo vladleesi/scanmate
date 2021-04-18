@@ -1,9 +1,9 @@
-package ru.vladleesi.ultimatescanner.adapter
+package ru.vladleesi.ultimatescanner.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import ru.vladleesi.ultimatescanner.data.room.entity.HistoryEntity
+import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 import ru.vladleesi.ultimatescanner.databinding.RvHistoryItemBinding
 
 class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemViewHolder>() {

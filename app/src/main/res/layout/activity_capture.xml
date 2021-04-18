@@ -21,41 +21,53 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <ImageView
             android:id="@+id/iv_captured_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
+            android:scaleType="centerCrop"
             android:adjustViewBounds="true" />
 
-        <TextView
-            android:id="@+id/tv_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="@dimen/margin_8"
-            android:layout_marginEnd="@dimen/margin_8"
-            android:autoLink="web"
-            android:linksClickable="true"
-            android:textColor="@color/black"
-            android:textColorLink="@color/purple_700"
-            tools:text="asdsadsd" />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_16"
+                android:layout_marginTop="@dimen/margin_16"
+                android:layout_marginEnd="@dimen/margin_16"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textColor="@color/white"
+                android:textColorLink="@color/purple_700"
+                tools:text="asdsadsd" />
+
+        </ScrollView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mb_send_for_analyze"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_16"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="@dimen/margin_32"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="Отправить"
-            android:textAllCaps="false" />
+            android:textColor="@color/black"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/black"
+            app:strokeWidth="1dp" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

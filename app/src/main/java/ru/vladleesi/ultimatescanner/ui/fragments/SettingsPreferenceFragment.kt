@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.fragments
+package ru.vladleesi.ultimatescanner.ui.fragments
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat

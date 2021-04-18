@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.activity
+package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.os.Bundle
 import android.os.Handler
@@ -7,9 +7,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import ru.vladleesi.ultimatescanner.R
-import ru.vladleesi.ultimatescanner.adapter.HistoryListAdapter
+import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityHistoryBinding
-import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
+import ru.vladleesi.ultimatescanner.ui.adapter.HistoryListAdapter
 import java.lang.ref.WeakReference
 
 class HistoryActivity : AppCompatActivity() {

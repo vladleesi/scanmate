@@ -76,18 +76,19 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
 
     // OkHttp
-    def okhttp_version = "4.9.0"
+    def okhttp_version = "4.9.1"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     // Retrofit
     def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:2.6.2"
     implementation "com.squareup.retrofit2:adapter-rxjava3:$retrofit_version"
 
-    // Gson (for POJO)
-    implementation 'com.google.code.gson:gson:2.8.6'
+    // Moshi
+    implementation "com.squareup.moshi:moshi:1.12.0"
+    implementation "com.squareup.moshi:moshi-kotlin:1.12.0"
 
     // RxJava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'

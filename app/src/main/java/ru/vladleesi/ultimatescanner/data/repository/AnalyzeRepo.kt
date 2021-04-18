@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.repository
+package ru.vladleesi.ultimatescanner.data.repository
 
 import android.content.Context
 import android.net.Uri
@@ -12,10 +12,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.vladleesi.ultimatescanner.data.retrofit.RetrofitClient
-import ru.vladleesi.ultimatescanner.data.room.AppDatabase
-import ru.vladleesi.ultimatescanner.data.room.entity.HistoryEntity
-import ru.vladleesi.ultimatescanner.model.AnalyzeState
+import ru.vladleesi.ultimatescanner.data.local.AppDatabase
+import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
+import ru.vladleesi.ultimatescanner.data.remote.RetrofitClient
+import ru.vladleesi.ultimatescanner.data.remote.adapter.toJson
+import ru.vladleesi.ultimatescanner.ui.model.AnalyzeState
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
@@ -27,16 +28,18 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
     private val appDatabase by lazy { AppDatabase.invoke(contextWeakReference) }
 
-    fun testConnection(): Single<String> {
-        val endpoint = PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
+    private val endpointFromPrefs by lazy {
+        PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
             .getString("endpoint", "/analyze") ?: "/analyze"
+    }
 
-        return service.testConnection(endpoint)
+    fun testConnection(): Single<String> {
+        return service.testConnection(endpointFromPrefs)
             .map { "${it.code()} ${it.message()}" }
             .onErrorReturn { it.message ?: it.toString() }
     }
 
-    fun analyze(uri: Uri): Single<AnalyzeState?> {
+    fun analyze(uri: Uri, discovered: Array<String>?): Single<AnalyzeState?> {
 
         val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return Single.just(
             AnalyzeState.Error(IllegalAccessException("Uploaded file not created"))
@@ -48,19 +51,18 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
         val requestBody: RequestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("image", file.name, file.asRequestBody(mediaType))
+            .addFormDataPart("discovered", discovered.toJson())
             .build()
 
-        val endpoint = PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
-            .getString("endpoint", "/analyze") ?: "/analyze"
-
-        return service.analyze(endpoint, requestBody)
+        return service.analyze(endpointFromPrefs, requestBody)
             .doOnError { Log.d(TAG, it.message ?: it.toString()) }
             .doOnSuccess { Log.i(TAG, "Analyze have been complete") }
-            .map {
-                if (it.contentLength() > 0)
-                    AnalyzeState.Success
-                else
+            .map { response ->
+                if (response.code() == 200) {
+                    AnalyzeState.Success(response.body()?.data)
+                } else {
                     AnalyzeState.Error(null)
+                }
             }
     }
 

@@ -1,7 +1,7 @@
-package ru.vladleesi.ultimatescanner.data.room.dao
+package ru.vladleesi.ultimatescanner.data.local.dao
 
 import androidx.room.*
-import ru.vladleesi.ultimatescanner.data.room.entity.HistoryEntity
+import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 
 @Dao
 interface HistoryDao {

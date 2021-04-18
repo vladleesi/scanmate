@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.activity
+package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.os.Bundle
 import android.widget.Toast
@@ -6,9 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vladleesi.ultimatescanner.R
+import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivitySettingsBinding
-import ru.vladleesi.ultimatescanner.fragments.SettingsPreferenceFragment
-import ru.vladleesi.ultimatescanner.repository.AnalyzeRepo
+import ru.vladleesi.ultimatescanner.ui.fragments.SettingsPreferenceFragment
 import java.lang.ref.WeakReference
 
 class SettingsActivity : AppCompatActivity() {

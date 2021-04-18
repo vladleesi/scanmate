@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import ru.vladleesi.ultimatescanner.activity.CameraPreviewActivity
+import ru.vladleesi.ultimatescanner.ui.activity.CameraPreviewActivity
 
 class PermissionUtils {
 

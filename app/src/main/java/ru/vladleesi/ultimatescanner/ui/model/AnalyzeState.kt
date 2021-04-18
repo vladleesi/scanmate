@@ -1,10 +1,10 @@
-package ru.vladleesi.ultimatescanner.model
+package ru.vladleesi.ultimatescanner.ui.model
 
 sealed class AnalyzeState {
 
     data class Error(val t: Throwable?) : AnalyzeState()
 
-    object Success : AnalyzeState()
+    data class Success(val data: String?) : AnalyzeState()
 
     object Loading : AnalyzeState()
 }

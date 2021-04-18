@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.data.retrofit.converter
+package ru.vladleesi.ultimatescanner.data.remote.converter
 
 import okhttp3.ResponseBody
 import retrofit2.Converter

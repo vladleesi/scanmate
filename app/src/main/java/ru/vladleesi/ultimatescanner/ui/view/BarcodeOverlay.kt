@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.view
+package ru.vladleesi.ultimatescanner.ui.view
 
 import android.content.Context
 import android.content.res.Configuration
@@ -6,7 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
-import ru.vladleesi.ultimatescanner.model.ScanResult
+import ru.vladleesi.ultimatescanner.ui.model.ScanResult
 
 class BarcodeOverlay @JvmOverloads constructor(
     context: Context,

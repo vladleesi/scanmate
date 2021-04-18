@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.model
+package ru.vladleesi.ultimatescanner.ui.model
 
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 
