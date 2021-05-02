@@ -73,6 +73,12 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
         }
     }
 
+    suspend fun clearHistory() {
+        return withContext(Dispatchers.IO) {
+            appDatabase?.historyDao()?.nukeTable()
+        }
+    }
+
     companion object {
         const val TAG = "AnalyzeRepo"
     }

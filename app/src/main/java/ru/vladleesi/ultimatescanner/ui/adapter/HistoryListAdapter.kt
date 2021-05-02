@@ -15,6 +15,13 @@ class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemVi
         notifyDataSetChanged()
     }
 
+    fun clearData() {
+        if (dataList.isNotEmpty()) {
+            dataList.clear()
+            notifyDataSetChanged()
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryItemViewHolder {
         val binding = RvHistoryItemBinding.inflate(LayoutInflater.from(parent.context))
         return HistoryItemViewHolder(binding)

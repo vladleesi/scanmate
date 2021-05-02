@@ -27,12 +27,10 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
-import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
 import ru.vladleesi.ultimatescanner.ui.model.ScanResult
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
-import ru.vladleesi.ultimatescanner.utils.RxJavaErrorHandler
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,8 +53,6 @@ class CameraPreviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        RxJavaPlugins.setErrorHandler(RxJavaErrorHandler())
 
         outputDirectory = getOutputDirectory()
         clearMediaDirectory()

@@ -20,18 +20,8 @@ class HistoryActivity : AppCompatActivity() {
     private val repo by lazy { AnalyzeRepo(WeakReference(applicationContext)) }
     private val adapter by lazy { HistoryListAdapter() }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
-        binding.tbToolbar.navigationIcon =
-            ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
-        binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
-        binding.tbToolbar.title = "История"
-
-        binding.rvHistoryList.adapter = adapter
-
-        val handler = CoroutineExceptionHandler { _, throwable ->
+    private val coroutineExceptionHandler by lazy {
+        CoroutineExceptionHandler { _, throwable ->
             lifecycleScope.launch {
                 Toast.makeText(
                     baseContext,
@@ -40,8 +30,42 @@ class HistoryActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
 
-        GlobalScope.launch(handler) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+
+        initToolbar()
+
+        loadHistory()
+
+        binding.fabClearHistory.setOnClickListener {
+            clearHistory()
+        }
+    }
+
+    private fun clearHistory() {
+        GlobalScope.launch(coroutineExceptionHandler) {
+            repo.clearHistory()
+            lifecycleScope.launch {
+                adapter.clearData()
+                Toast.makeText(baseContext, "History have been cleared", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun initToolbar() {
+        binding.tbToolbar.navigationIcon =
+            ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
+        binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.tbToolbar.title = "История"
+    }
+
+    private fun loadHistory() {
+        binding.rvHistoryList.adapter = adapter
+
+        GlobalScope.launch(coroutineExceptionHandler) {
             repo.getHistory()?.let { historyList ->
                 lifecycleScope.launch {
                     adapter.setData(historyList)
