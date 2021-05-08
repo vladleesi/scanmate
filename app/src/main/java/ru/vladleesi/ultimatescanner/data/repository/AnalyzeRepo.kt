@@ -15,6 +15,8 @@ import ru.vladleesi.ultimatescanner.data.remote.RetrofitClient
 import ru.vladleesi.ultimatescanner.data.remote.adapter.toJson
 import ru.vladleesi.ultimatescanner.ui.model.AnalyzeState
 import ru.vladleesi.ultimatescanner.utils.FileUtils
+import ru.vladleesi.ultimatescanner.utils.ImageCompressUtils
+import java.io.FileNotFoundException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,12 +40,11 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
     suspend fun analyze(uri: Uri, discovered: Array<String>?): AnalyzeState {
 
-        val file = FileUtils.getFile(contextWeakReference.get(), uri) ?: return AnalyzeState.Error(
-            IllegalAccessException("Uploaded file not created")
-        )
+        val filePath = FileUtils.getPathFrom(contextWeakReference.get(), uri)
+        val file = ImageCompressUtils.getCompressed(contextWeakReference.get(), filePath)
+            ?: return AnalyzeState.Error(FileNotFoundException("Filepath: $filePath"))
 
-        val mediaType =
-            if (file.endsWith("png")) "image/png".toMediaTypeOrNull() else "image/jpeg".toMediaTypeOrNull()
+        val mediaType = FileUtils.getMimeType(contextWeakReference, uri)?.toMediaTypeOrNull()
 
         val requestBody: RequestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
