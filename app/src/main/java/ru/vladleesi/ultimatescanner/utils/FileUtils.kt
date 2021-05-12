@@ -45,9 +45,25 @@ object FileUtils {
                     return id.replace("raw:/", "file:///")
                 } else {
                     if (id.startsWith("msf:")) {
-                        // Case: Android 10 emulator, a video file downloaded via Chrome app.
-                        // No knowledge how to reconstruct the file path. So just fail fast.
-                        return null
+                        context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
+                            val file =
+                                File(
+                                    context.externalCacheDir,
+                                    uri.lastPathSegment ?: return null
+                                )
+                            FileOutputStream(file).use { output ->
+                                val maxMemory =
+                                    (Runtime.getRuntime().maxMemory() / 1024).toInt()
+                                val cacheSize = maxMemory / 8
+                                val buffer = ByteArray(cacheSize)
+                                var read: Int
+                                while (inputStream.read(buffer).also { read = it } != -1) {
+                                    output.write(buffer, 0, read)
+                                }
+                                output.flush()
+                                return file.path
+                            }
+                        }
                     }
 
                     uriInner = ContentUris.withAppendedId(
@@ -168,7 +184,8 @@ object FileUtils {
     fun createTempFile(context: Context?, suffix: String?, fileName: String? = null): File {
 
         val timeStamp = SimpleDateFormat("yyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//            val storageDir = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir = context?.externalCacheDir
 
         return File.createTempFile(
             "${fileName ?: timeStamp}_",
@@ -214,5 +231,19 @@ object FileUtils {
 
     fun isImage(mimeType: String?): Boolean {
         return mimeType?.contains("image/") == true
+    }
+
+    fun getImageCompressorCacheDir(context: Context?): File {
+        val path = context?.externalCacheDir?.absolutePath + "/ImageCompressor"
+        return File(path).apply {
+            // Create ImageCompressor folder if it doesnt already exists.
+            if (!exists()) mkdirs()
+        }
+    }
+
+    fun clearImageCompressorCache(contextWeakReference: WeakReference<Context>) {
+        getImageCompressorCacheDir(contextWeakReference.get())
+            .takeIf { it.exists() }
+            ?.deleteRecursively()
     }
 }

@@ -26,11 +26,7 @@ object ImageCompressUtils {
             if (context == null) throw NullPointerException("Context must not be null.")
             // getting device external cache directory, might not be available on some devices,
             // so our code fall back to internal storage cache directory, which is always available but in smaller quantity
-            val cacheDir = context.externalCacheDir ?: context.cacheDir
-            val rootDir = cacheDir?.absolutePath + "/ImageCompressor"
-            val root = File(rootDir)
-            // Create ImageCompressor folder if it doesn't already exists.
-            if (!root.exists()) root.mkdirs()
+            val imageCompressedCacheDir = FileUtils.getImageCompressorCacheDir(context)
             // decode and resize the original bitmap from @param path.
             val bitmap =
                 decodeImageFromFiles(
@@ -40,7 +36,10 @@ object ImageCompressUtils {
                 )
             // create placeholder for the compressed image file
             val compressed =
-                File(root, dateFormat.format(Date()) + ".jpg" /* Your desired format */)
+                File(
+                    imageCompressedCacheDir,
+                    dateFormat.format(Date()) + ".jpg" /* Your desired format */
+                )
             // convert the decoded bitmap to stream
             val byteArrayOutputStream = ByteArrayOutputStream()
             /*

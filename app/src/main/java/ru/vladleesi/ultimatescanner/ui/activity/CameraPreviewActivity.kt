@@ -30,8 +30,10 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
 import ru.vladleesi.ultimatescanner.ui.model.ScanResult
+import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import java.io.File
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -196,6 +198,7 @@ class CameraPreviewActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+        FileUtils.clearImageCompressorCache(WeakReference(applicationContext))
     }
 
     override fun onRequestPermissionsResult(
@@ -233,6 +236,7 @@ class CameraPreviewActivity : AppCompatActivity() {
             .addOnFailureListener { processFailure(it) }
     }
 
+    // TODO: Add cache to prefs?
     private val barcodeSet = hashSetOf<String?>()
 
     private fun processResult(
