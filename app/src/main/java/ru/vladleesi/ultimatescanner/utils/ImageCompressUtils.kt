@@ -31,8 +31,8 @@ object ImageCompressUtils {
             val bitmap =
                 decodeImageFromFiles(
                     path,  /* your desired width */
-                    300,  /* your desired height */
-                    300
+                    800,  /* your desired height */
+                    600
                 )
             // create placeholder for the compressed image file
             val compressed =
