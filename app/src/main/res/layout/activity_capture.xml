@@ -47,6 +47,8 @@
                 android:layout_marginTop="@dimen/margin_16"
                 android:layout_marginEnd="@dimen/margin_16"
                 android:autoLink="web"
+                android:background="@drawable/background_image_text"
+                android:padding="@dimen/margin_8"
                 android:linksClickable="true"
                 android:textColor="@color/white"
                 android:textColorLink="@color/purple_700"

@@ -60,8 +60,10 @@ class CaptureActivity : AppCompatActivity() {
         barcodeSet?.let {
             val resultStringBuilder = StringBuilder()
             it.forEach { result ->
+                if (resultStringBuilder.isNotEmpty()) {
+                    resultStringBuilder.append("\n\n")
+                }
                 resultStringBuilder.append(result)
-                resultStringBuilder.append("\n\n")
             }
             binding.tvValue.text = resultStringBuilder.toString()
         }
