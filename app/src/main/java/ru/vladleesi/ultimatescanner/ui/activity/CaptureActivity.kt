@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -28,8 +27,6 @@ class CaptureActivity : AppCompatActivity() {
     private val binding by lazy { ActivityCaptureBinding.inflate(layoutInflater) }
 
     private val analyzeRepo by lazy { AnalyzeRepo(WeakReference(application)) }
-
-    private lateinit var mDetector: FirebaseVisionBarcodeDetector
 
     private val uri by lazy { intent.getParcelableExtra<Uri>(CAPTURED_URI) }
 

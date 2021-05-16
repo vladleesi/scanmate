@@ -58,7 +58,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        clearMediaDirectory()
+        clearCacheDirectory()
 
         makeStatusBarTransparent()
 
@@ -75,6 +75,8 @@ class CameraPreviewActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        binding.ivCloseApp.setOnClickListener { finish() }
+
         binding.fabOpenSettings.setOnClickListener {
             startActivity(Intent(baseContext, SettingsActivity::class.java))
         }
@@ -86,7 +88,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         }
     }
 
-    private fun clearMediaDirectory() {
+    private fun clearCacheDirectory() {
         mOutputDirectory?.listFiles()?.forEach {
             it.delete()
         }
@@ -323,12 +325,12 @@ fun Activity.makeStatusBarTransparent() {
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                decorView.systemUiVisibility =
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            } else {
-                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            }
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                decorView.systemUiVisibility =
+//                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//            } else {
+            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//            }
             statusBarColor = Color.TRANSPARENT
         }
     }

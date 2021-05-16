@@ -14,17 +14,40 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageView
+        android:id="@+id/iv_close_app"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_16"
+        android:layout_marginTop="@dimen/margin_40"
+        android:background="@drawable/background_image_view_button"
+        android:padding="@dimen/margin_12"
+        android:src="@drawable/ic_baseline_close_24"
+        app:tint="@color/white" />
+
+    <ImageView
         android:id="@+id/fab_open_settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_marginStart="@dimen/margin_16"
-        android:layout_marginBottom="@dimen/margin_16"
-        android:outlineProvider="none"
-        android:src="@drawable/ic_baseline_settings_24_white"
-        app:backgroundTint="@android:color/transparent"
+        android:layout_gravity="end"
+        android:layout_marginTop="@dimen/margin_40"
+        android:layout_marginEnd="@dimen/margin_16"
+        android:background="@drawable/background_image_view_button"
+        android:padding="@dimen/margin_12"
+        android:src="@drawable/ic_baseline_settings_24"
         app:tint="@color/white" />
+
+    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--        android:id="@+id/fab_open_settings"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="bottom|start"-->
+    <!--        android:layout_marginStart="@dimen/margin_16"-->
+    <!--        android:layout_marginBottom="@dimen/margin_16"-->
+    <!--        android:outlineProvider="none"-->
+    <!--        android:src="@drawable/ic_baseline_settings_24_white"-->
+    <!--        app:backgroundTint="@android:color/transparent"-->
+    <!--        app:tint="@color/white" />-->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_capture"
@@ -47,6 +70,5 @@
         android:src="@drawable/ic_baseline_history_24"
         app:backgroundTint="@android:color/transparent"
         app:tint="@color/white" />
-
 
 </FrameLayout>
