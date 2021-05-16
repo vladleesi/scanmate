@@ -47,16 +47,17 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private lateinit var imageCapture: ImageCapture
 
-    private lateinit var outputDirectory: File
+    private val mOutputDirectory by lazy { getOutputDirectory() }
     private lateinit var cameraExecutor: ExecutorService
 
     private lateinit var mDetector: FirebaseVisionBarcodeDetector
+
+    private val barcodeSet: HashSet<String?> = hashSetOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        outputDirectory = getOutputDirectory()
         clearMediaDirectory()
 
         makeStatusBarTransparent()
@@ -86,7 +87,7 @@ class CameraPreviewActivity : AppCompatActivity() {
     }
 
     private fun clearMediaDirectory() {
-        outputDirectory.listFiles()?.forEach {
+        mOutputDirectory?.listFiles()?.forEach {
             it.delete()
         }
     }
@@ -99,10 +100,9 @@ class CameraPreviewActivity : AppCompatActivity() {
 
         // Create time-stamped output file to hold the image
         val photoFile = File(
-            outputDirectory,
-            SimpleDateFormat(
-                FILENAME_FORMAT, Locale.getDefault()
-            ).format(System.currentTimeMillis()) + ".jpg"
+            mOutputDirectory,
+            SimpleDateFormat(FILENAME_FORMAT, Locale.getDefault())
+                .format(System.currentTimeMillis()) + ".jpg"
         )
 
         // Create output options object which contains file + metadata
@@ -127,9 +127,6 @@ class CameraPreviewActivity : AppCompatActivity() {
                         putExtra(CaptureActivity.CAPTURED_URI, savedUri)
                         putExtra(BARCODE_SET_VALUE, barcodeSet)
                     })
-                    if (barcodeSet.isNotEmpty()) {
-                        barcodeSet.clear()
-                    }
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 }
             })
@@ -188,11 +185,12 @@ class CameraPreviewActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+    private fun getOutputDirectory(): File? {
+//        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+//            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
+//        }
+//        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+        return baseContext.externalCacheDir
     }
 
     override fun onDestroy() {
@@ -236,15 +234,11 @@ class CameraPreviewActivity : AppCompatActivity() {
             .addOnFailureListener { processFailure(it) }
     }
 
-    // TODO: Add cache to prefs?
-    private val barcodeSet = hashSetOf<String?>()
-
     private fun processResult(
         barcodeResults: List<FirebaseVisionBarcode>,
         capturedImageWidth: Int,
         capturedImageHeight: Int
     ) {
-
         binding.boBarcodeOverlay.overlay(
             ScanResult(
                 barcodeResults,
@@ -253,6 +247,9 @@ class CameraPreviewActivity : AppCompatActivity() {
             )
         )
 
+        if (barcodeSet.isNotEmpty()) {
+            barcodeSet.clear()
+        }
         barcodeResults.forEach {
             barcodeSet.add("${CaptureActivity.getType(it.valueType)}: ${it.rawValue}")
         }
@@ -307,7 +304,7 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "CameraXBasic"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val FILENAME_FORMAT = "yyyyMMddHHmmssSSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 

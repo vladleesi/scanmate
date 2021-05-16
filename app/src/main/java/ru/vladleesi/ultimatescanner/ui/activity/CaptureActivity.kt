@@ -1,29 +1,25 @@
 package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.FirebaseApp
-import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
 import ru.vladleesi.ultimatescanner.ui.model.AnalyzeState
+import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.lang.ref.WeakReference
 
 
@@ -35,14 +31,15 @@ class CaptureActivity : AppCompatActivity() {
 
     private lateinit var mDetector: FirebaseVisionBarcodeDetector
 
+    private val uri by lazy { intent.getParcelableExtra<Uri>(CAPTURED_URI) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         initToolbar()
 
-        val uri = intent.getParcelableExtra<Uri>(CAPTURED_URI)
-        var bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
+        var bitmap = BitmapFactory.decodeFile(uri?.let { FileUtils.getPathFrom(baseContext, it) })
         Matrix().apply {
             postRotate(90f)
             bitmap = Bitmap.createBitmap(
@@ -56,7 +53,7 @@ class CaptureActivity : AppCompatActivity() {
             )
         }
         binding.ivCapturedImage.setImageBitmap(bitmap)
-        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
+//        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
         val barcodeSet =
             intent.getSerializableExtra(CameraPreviewActivity.BARCODE_SET_VALUE) as? HashSet<String>
@@ -68,7 +65,6 @@ class CaptureActivity : AppCompatActivity() {
             }
             binding.tvValue.text = resultStringBuilder.toString()
         }
-
 
         binding.mbSendForAnalyze.setOnClickListener {
             uri?.let {
@@ -82,7 +78,7 @@ class CaptureActivity : AppCompatActivity() {
                     }
                 }
                 GlobalScope.launch(handler) {
-                    val state = analyzeRepo.analyze(uri, barcodeSet?.toTypedArray())
+                    val state = analyzeRepo.analyze(it, barcodeSet?.toTypedArray())
                     lifecycleScope.launch {
                         when (state) {
                             is AnalyzeState.Success -> Toast.makeText(
@@ -108,49 +104,6 @@ class CaptureActivity : AppCompatActivity() {
             ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
         binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
         binding.tbToolbar.title = "Детальная информация"
-    }
-
-    private fun runDetector(
-        image: FirebaseVisionImage
-    ) {
-
-        val options = FirebaseVisionBarcodeDetectorOptions.Builder()
-            .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
-            .build()
-
-        FirebaseApp.initializeApp(applicationContext)
-        mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
-        mDetector.detectInImage(image)
-            .addOnSuccessListener { processResult(it) }
-            .addOnFailureListener { processFailure(it) }
-    }
-
-    private fun processResult(
-        barcodeResults: List<FirebaseVisionBarcode>
-    ) {
-        barcodeResults.forEach { barcode ->
-
-            val raw = barcode.rawValue
-
-            // TODO: Отобразить область распознавания на экране
-            val rect = barcode.boundingBox
-            val corner = barcode.cornerPoints
-
-            val type = getType(barcode.valueType)
-            val value = raw.toString()
-            Log.e(TAG, value)
-
-            val result = "$type: $value"
-            binding.tvValue.text = result
-
-            GlobalScope.launch(Dispatchers.IO) {
-                analyzeRepo.saveToHistory(type, value)
-            }
-        }
-    }
-
-    private fun processFailure(it: Exception) {
-        Toast.makeText(baseContext, it.message, Toast.LENGTH_SHORT).show()
     }
 
     private fun showErrorToast() {
