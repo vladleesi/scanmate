@@ -6,7 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
-import ru.vladleesi.ultimatescanner.ui.model.ScanResult
+import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 
 class BarcodeOverlay @JvmOverloads constructor(
     context: Context,

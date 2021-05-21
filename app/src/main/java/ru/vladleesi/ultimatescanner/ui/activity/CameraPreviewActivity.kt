@@ -29,7 +29,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
-import ru.vladleesi.ultimatescanner.ui.model.ScanResult
+import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import java.io.File

@@ -13,7 +13,7 @@ import ru.vladleesi.ultimatescanner.data.local.AppDatabase
 import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 import ru.vladleesi.ultimatescanner.data.remote.RetrofitClient
 import ru.vladleesi.ultimatescanner.data.remote.adapter.toJson
-import ru.vladleesi.ultimatescanner.ui.model.AnalyzeState
+import ru.vladleesi.ultimatescanner.ui.model.state.Result
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.ImageCompressUtils
 import java.io.FileNotFoundException
@@ -38,11 +38,11 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
         return "${response.code()} ${response.message()}"
     }
 
-    suspend fun analyze(uri: Uri, discovered: Array<String>?): AnalyzeState {
+    suspend fun analyze(uri: Uri, discovered: Array<String>?): Result<String> {
 
         val filePath = FileUtils.getPathFrom(contextWeakReference.get(), uri)
         val file = ImageCompressUtils.getCompressed(contextWeakReference.get(), filePath)
-            ?: return AnalyzeState.Error(FileNotFoundException("Filepath: $filePath"))
+            ?: return Result.Error(FileNotFoundException("Filepath: $filePath"))
 
         val mediaType = FileUtils.getMimeType(contextWeakReference, uri)?.toMediaTypeOrNull()
 
@@ -54,9 +54,9 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
         val response = service.analyze(endpointFromPrefs, requestBody)
         return if (response.code() == 200) {
-            AnalyzeState.Success(response.body()?.data)
+            Result.Success(response.body()?.data)
         } else {
-            AnalyzeState.Error(null)
+            Result.Error(null)
         }
     }
 

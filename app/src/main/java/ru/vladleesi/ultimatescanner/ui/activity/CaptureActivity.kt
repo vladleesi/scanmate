@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
-import ru.vladleesi.ultimatescanner.ui.model.AnalyzeState
+import ru.vladleesi.ultimatescanner.ui.model.state.Result
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.lang.ref.WeakReference
 
@@ -80,17 +80,17 @@ class CaptureActivity : AppCompatActivity() {
                     val state = analyzeRepo.analyze(it, barcodeSet?.toTypedArray())
                     lifecycleScope.launch {
                         when (state) {
-                            is AnalyzeState.Success -> Toast.makeText(
+                            is Result.Success -> Toast.makeText(
                                 baseContext,
                                 state.data,
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AnalyzeState.Loading -> Toast.makeText(
+                            is Result.Loading -> Toast.makeText(
                                 baseContext,
                                 "Loading",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AnalyzeState.Error -> showErrorToast()
+                            is Result.Error -> showErrorToast()
                         }
                     }
                 }
