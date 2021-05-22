@@ -2,17 +2,12 @@ package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -29,6 +24,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
+import ru.vladleesi.ultimatescanner.extensions.makeStatusBarTransparent
 import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
@@ -202,8 +198,9 @@ class CameraPreviewActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults:
-        IntArray
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
     ) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
@@ -317,21 +314,5 @@ class CameraPreviewActivity : AppCompatActivity() {
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
-    }
-}
-
-fun Activity.makeStatusBarTransparent() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        window.apply {
-            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                decorView.systemUiVisibility =
-//                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-//            } else {
-            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//            }
-            statusBarColor = Color.TRANSPARENT
-        }
     }
 }
