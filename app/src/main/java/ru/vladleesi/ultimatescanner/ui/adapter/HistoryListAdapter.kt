@@ -39,7 +39,7 @@ class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemVi
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: HistoryEntity) {
-            val value = "[id:${item.id}, date: ${item.date}]\n${item.type}:\n${item.value}"
+            val value = "[id:${item.id}, date: ${item.date}]\n${item.type}: ${item.value}"
             binding.tvValue.text = value
         }
     }

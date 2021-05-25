@@ -48,7 +48,7 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private lateinit var mDetector: FirebaseVisionBarcodeDetector
 
-    private val barcodeSet: HashSet<String?> = hashSetOf()
+    private val barcodeMap: HashMap<String, String> = hashMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,7 +123,7 @@ class CameraPreviewActivity : AppCompatActivity() {
 
                     startActivity(Intent(baseContext, CaptureActivity::class.java).apply {
                         putExtra(CaptureActivity.CAPTURED_URI, savedUri)
-                        putExtra(BARCODE_SET_VALUE, barcodeSet)
+                        putExtra(BARCODE_MAP, barcodeMap)
                     })
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 }
@@ -202,6 +202,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startCamera()
@@ -246,11 +247,11 @@ class CameraPreviewActivity : AppCompatActivity() {
             )
         )
 
-        if (barcodeSet.isNotEmpty()) {
-            barcodeSet.clear()
+        if (barcodeMap.isNotEmpty()) {
+            barcodeMap.clear()
         }
         barcodeResults.forEach {
-            barcodeSet.add("${CaptureActivity.getType(it.valueType)}: ${it.rawValue}")
+            barcodeMap[CaptureActivity.getType(it.valueType)] = it.rawValue ?: ""
         }
     }
 
@@ -278,7 +279,7 @@ class CameraPreviewActivity : AppCompatActivity() {
             else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
         }
 
-        @SuppressLint("UnsafeExperimentalUsageError")
+        @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
         override fun analyze(image: ImageProxy) {
 
             if (isBusy.compareAndSet(false, true)) {
@@ -310,7 +311,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         const val REQUEST_CODE_FROM_CAMERA = 96
         const val CAMERA_PERMISSION_REQUEST = 234
 
-        const val BARCODE_SET_VALUE = "barcodeSetValue"
+        const val BARCODE_MAP = "barcodeSetValue"
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0

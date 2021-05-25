@@ -30,6 +30,16 @@ class CaptureActivity : AppCompatActivity() {
 
     private val uri by lazy { intent.getParcelableExtra<Uri>(CAPTURED_URI) }
 
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        lifecycleScope.launch {
+            Toast.makeText(
+                baseContext,
+                "ERROR: ${throwable.message ?: throwable.toString()}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -52,32 +62,27 @@ class CaptureActivity : AppCompatActivity() {
         binding.ivCapturedImage.setImageBitmap(bitmap)
 //        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
-        val barcodeSet =
-            intent.getSerializableExtra(CameraPreviewActivity.BARCODE_SET_VALUE) as? HashSet<String>
-        barcodeSet?.let {
+        val barcodeMap =
+            intent.getSerializableExtra(CameraPreviewActivity.BARCODE_MAP) as? HashMap<String, String>
+        barcodeMap?.let {
             val resultStringBuilder = StringBuilder()
-            it.forEach { result ->
+            barcodeMap.forEach { result ->
                 if (resultStringBuilder.isNotEmpty()) {
                     resultStringBuilder.append("\n\n")
                 }
                 resultStringBuilder.append(result)
             }
             binding.tvValue.text = resultStringBuilder.toString()
+
+            GlobalScope.launch(handler) {
+                analyzeRepo.saveToHistory(it)
+            }
         }
 
         binding.mbSendForAnalyze.setOnClickListener {
             uri?.let {
-                val handler = CoroutineExceptionHandler { _, throwable ->
-                    lifecycleScope.launch {
-                        Toast.makeText(
-                            baseContext,
-                            "ERROR: ${throwable.message ?: throwable.toString()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
                 GlobalScope.launch(handler) {
-                    val state = analyzeRepo.analyze(it, barcodeSet?.toTypedArray())
+                    val state = analyzeRepo.analyze(it, barcodeMap)
                     lifecycleScope.launch {
                         when (state) {
                             is Result.Success -> Toast.makeText(

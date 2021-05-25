@@ -38,7 +38,7 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
         return "${response.code()} ${response.message()}"
     }
 
-    suspend fun analyze(uri: Uri, discovered: Array<String>?): Result<String> {
+    suspend fun analyze(uri: Uri, discovered: Map<String, String>?): Result<String> {
 
         val filePath = FileUtils.getPathFrom(contextWeakReference.get(), uri)
         val file = ImageCompressUtils.getCompressed(contextWeakReference.get(), filePath)
@@ -60,11 +60,13 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
         }
     }
 
-    suspend fun saveToHistory(type: String, value: String) {
+    suspend fun saveToHistory(result: Map<String, String>) {
         return withContext(Dispatchers.IO) {
             val simpleDateFormatTo = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
             val date = simpleDateFormatTo.format(Date())
-            appDatabase?.historyDao()?.insert(HistoryEntity(type, value, date))
+            result.forEach {
+                appDatabase?.historyDao()?.insert(HistoryEntity(it.key, it.value, date))
+            }
         }
     }
 
