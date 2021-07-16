@@ -12,9 +12,8 @@ class PermissionUtils {
     companion object {
 
         /** Check if this device has a camera */
-        private fun checkCameraHardware(context: Context): Boolean {
-            return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
-        }
+        private fun checkCameraHardware(context: Context): Boolean =
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
 
         /** Request camera permission if need */
         fun requestPermission(activity: Activity) {
