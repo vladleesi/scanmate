@@ -10,4 +10,8 @@
     <dimen name="margin_64">64dp</dimen>
 
     <dimen name="corner_4">4dp</dimen>
+    <dimen name="corner_8">8dp</dimen>
+    <dimen name="corner_32">32dp</dimen>
+
+    <dimen name="icon_button_size">16dp</dimen>
 </resources>

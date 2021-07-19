@@ -2,4 +2,7 @@
     <string name="app_name">ultimate-scan-android</string>
     <string name="text_open_device_camera">Open device camera</string>
     <string name="text_open_camera_preview">Open camera preview</string>
+    <string name="tv_copy">Copy</string>
+    <string name="tv_play">Play</string>
+    <string name="tv_stop">Stop</string>
 </resources>
