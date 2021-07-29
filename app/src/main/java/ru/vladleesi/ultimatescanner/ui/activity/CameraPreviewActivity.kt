@@ -16,12 +16,14 @@ import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import dagger.hilt.android.AndroidEntryPoint
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
 import ru.vladleesi.ultimatescanner.extensions.makeStatusBarTransparent
@@ -35,9 +37,14 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class CameraPreviewActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private val binding by lazy { ActivityCameraPreviewBinding.inflate(layoutInflater) }
 
@@ -53,6 +60,8 @@ class CameraPreviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, Bundle())
 
         clearCacheDirectory()
 
