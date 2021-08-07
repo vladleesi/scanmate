@@ -8,7 +8,6 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
-
 fun View.visible() = setVisibilityInner(View.VISIBLE)
 fun View.invisible() = setVisibilityInner(View.INVISIBLE)
 fun View.gone() = setVisibilityInner(View.INVISIBLE)
@@ -25,7 +24,12 @@ fun View.showPopup(popupView: View) {
         true
     )
     popupWindow.elevation = 4f
+    if (popupView.parent != null) {
+        (popupView.parent as ViewGroup).removeView(popupView)
+    }
+
     popupWindow.showAsDropDown(this)
+//    popupWindow.showAtLocation(this, Gravity.CENTER, 0, 0)
 }
 
 fun TextView.copyToClipboard() {
