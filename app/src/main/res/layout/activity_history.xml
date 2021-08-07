@@ -5,24 +5,16 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tb_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:titleTextColor="@color/black" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/include_toolbar"
+        layout="@layout/include_collapsing_toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_history_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:overScrollMode="never"
         android:scrollbars="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
@@ -35,7 +27,7 @@
         android:layout_marginEnd="@dimen/margin_16"
         android:layout_marginBottom="@dimen/margin_16"
         android:src="@drawable/ic_baseline_delete_forever_24"
-        app:backgroundTint="@color/teal_700"
-        app:tint="@color/white" />
+        app:backgroundTint="@color/yellow"
+        app:tint="@color/black" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

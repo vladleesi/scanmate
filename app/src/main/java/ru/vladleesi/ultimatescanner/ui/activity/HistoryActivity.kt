@@ -1,7 +1,6 @@
 package ru.vladleesi.ultimatescanner.ui.activity
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +10,7 @@ import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityHistoryBinding
+import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.adapter.HistoryListAdapter
 import java.lang.ref.WeakReference
 
@@ -23,11 +23,7 @@ class HistoryActivity : AppCompatActivity() {
     private val coroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { _, throwable ->
             lifecycleScope.launch {
-                Toast.makeText(
-                    baseContext,
-                    "ERROR: Can't load history list\n${throwable.message ?: throwable.toString()}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast("ERROR: Can't load history list\n${throwable.message ?: throwable.toString()}")
             }
         }
     }
@@ -50,16 +46,16 @@ class HistoryActivity : AppCompatActivity() {
             repo.clearHistory()
             lifecycleScope.launch {
                 adapter.clearData()
-                Toast.makeText(baseContext, "History have been cleared", Toast.LENGTH_SHORT).show()
+                showToast("History have been cleared")
             }
         }
     }
 
     private fun initToolbar() {
-        binding.tbToolbar.navigationIcon =
+        binding.includeToolbar.tbToolbar.navigationIcon =
             ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
-        binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
-        binding.tbToolbar.title = "История"
+        binding.includeToolbar.tbToolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.includeToolbar.tbToolbar.title = "История"
     }
 
     private fun loadHistory() {
