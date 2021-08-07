@@ -18,7 +18,6 @@ import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 object FileUtils {
 
     fun getFile(context: Context?, uri: Uri?): File? {
@@ -233,16 +232,16 @@ object FileUtils {
         return mimeType?.contains("image/") == true
     }
 
-    fun getImageCompressorCacheDir(context: Context?): File {
-        val path = context?.externalCacheDir?.absolutePath + "/ImageCompressor"
+    fun getImageCompressorCacheDir(context: Context): File {
+        val path = context.externalCacheDir?.absolutePath + "/ImageCompressor"
         return File(path).apply {
             // Create ImageCompressor folder if it doesnt already exists.
             if (!exists()) mkdirs()
         }
     }
 
-    fun clearImageCompressorCache(contextWeakReference: WeakReference<Context>) {
-        getImageCompressorCacheDir(contextWeakReference.get())
+    fun clearImageCompressorCache(context: Context) {
+        getImageCompressorCacheDir(context)
             .takeIf { it.exists() }
             ?.deleteRecursively()
     }
