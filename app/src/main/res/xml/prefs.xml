@@ -16,4 +16,15 @@
         app:defaultValue="analyze"
         app:useSimpleSummaryProvider="true" />
 
+    <Preference
+        android:icon="@drawable/ic_baseline_network_check_24"
+        android:key="test_connection"
+        android:title="Test connection" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:icon="@drawable/ic_baseline_hearing_24"
+        android:key="sound_maker"
+        android:title="Звуковое оповещение" />
+
 </androidx.preference.PreferenceScreen>
