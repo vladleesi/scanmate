@@ -8,9 +8,17 @@
     <color name="black">#333333</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="yellow_light">#ffff8b</color>
+    <color name="yellow">#ffee58</color>
+    <color name="yellow_dark">#c9bc1f</color>
 
-    <color name="grayLight">#c8c8c8</color>
+    <color name="gray_light">#c8c8c8</color>
     <color name="gray">#929292</color>
-    <color name="grayTransparent">#8c929292</color>
-    <color name="grayDark">#646464</color>
+    <color name="gray_transparent_55">#8c929292</color>
+    <color name="gray_dark">#646464</color>
+
+    <color name="black_transparent_15">#33000000</color>
+    <color name="black_transparent_35">#59000000</color>
+    <color name="black_transparent_55">#8c000000</color>
+    <color name="black_transparent_551">#C3000000</color>
 </resources>
