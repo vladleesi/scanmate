@@ -4,27 +4,33 @@
 
     <EditTextPreference
         android:icon="@drawable/ic_baseline_insert_link_24"
-        android:key="url"
+        android:key="@string/settings_url"
         android:title="Base url"
         app:defaultValue="http://test.ru/"
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference
         android:icon="@drawable/ic_baseline_outlined_flag_24"
-        android:key="endpoint"
+        android:key="@string/settings_endpoint"
         android:title="Endpoint"
         app:defaultValue="analyze"
         app:useSimpleSummaryProvider="true" />
 
     <Preference
         android:icon="@drawable/ic_baseline_network_check_24"
-        android:key="test_connection"
+        android:key="@string/settings_test_connection"
         android:title="Test connection" />
 
     <SwitchPreference
         android:defaultValue="true"
+        android:icon="@drawable/ic_baseline_motion_photos_auto_24"
+        android:key="@string/settings_auto_detect"
+        android:title="Автопоиск" />
+
+    <SwitchPreference
+        android:defaultValue="true"
         android:icon="@drawable/ic_baseline_hearing_24"
-        android:key="sound_maker"
+        android:key="@string/settings_sound_maker"
         android:title="Звуковое оповещение" />
 
 </androidx.preference.PreferenceScreen>

@@ -233,7 +233,7 @@ object FileUtils {
     }
 
     fun getImageCompressorCacheDir(context: Context): File {
-        val path = context.externalCacheDir?.absolutePath + "/ImageCompressor"
+        val path = context.externalCacheDir?.absolutePath + "/compressed"
         return File(path).apply {
             // Create ImageCompressor folder if it doesnt already exists.
             if (!exists()) mkdirs()

@@ -32,8 +32,7 @@ class BarcodeOverlay @JvmOverloads constructor(
                         val rect = translateRect(boundingBox)
                         val cx = rect.left + (rect.right - rect.left) / 2
                         val cy = rect.top + (rect.bottom - rect.top) / 2
-                        val radius = 16.0f
-                        drawCircle(cx, cy, radius, paint)
+                        drawCircle(cx, cy, BOUNDING_BOX_RADIUS, paint)
                     }
                 }
             }
@@ -66,4 +65,8 @@ class BarcodeOverlay @JvmOverloads constructor(
         translateX(rect.right.toFloat()),
         translateY(rect.bottom.toFloat())
     )
+
+    companion object {
+        private const val BOUNDING_BOX_RADIUS = 16f
+    }
 }

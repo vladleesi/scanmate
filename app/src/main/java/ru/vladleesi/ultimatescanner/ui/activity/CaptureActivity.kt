@@ -1,28 +1,38 @@
 package ru.vladleesi.ultimatescanner.ui.activity
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import ru.vladleesi.ultimatescanner.Constants.BARCODE_MAP
+import ru.vladleesi.ultimatescanner.Constants.CAPTURED_URI
 import ru.vladleesi.ultimatescanner.R
+import ru.vladleesi.ultimatescanner.data.remote.model.AnalyzeResultApi
+import ru.vladleesi.ultimatescanner.data.remote.model.OcrData
+import ru.vladleesi.ultimatescanner.data.remote.model.Product
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.databinding.ActivityCaptureBinding
-import ru.vladleesi.ultimatescanner.ui.model.state.Result
+import ru.vladleesi.ultimatescanner.databinding.PopupTextToSpeechBinding
+import ru.vladleesi.ultimatescanner.extensions.*
+import ru.vladleesi.ultimatescanner.ui.fragments.ProductDetailsBottomSheetDialogFragment
+import ru.vladleesi.ultimatescanner.ui.model.state.ResultState
+import ru.vladleesi.ultimatescanner.ui.view.BoxView
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.lang.ref.WeakReference
+import java.util.*
 
-
-class CaptureActivity : AppCompatActivity() {
+class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speecher {
 
     private val binding by lazy { ActivityCaptureBinding.inflate(layoutInflater) }
 
@@ -30,13 +40,16 @@ class CaptureActivity : AppCompatActivity() {
 
     private val uri by lazy { intent.getParcelableExtra<Uri>(CAPTURED_URI) }
 
+    private lateinit var tts: TextToSpeech
+    private val ttsParams by lazy {
+        Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
+        }
+    }
+
     private val handler = CoroutineExceptionHandler { _, throwable ->
         lifecycleScope.launch {
-            Toast.makeText(
-                baseContext,
-                "ERROR: ${throwable.message ?: throwable.toString()}",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast("ERROR: ${throwable.message ?: throwable.toString()}")
         }
     }
 
@@ -44,150 +57,233 @@ class CaptureActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        initToolbar()
+        makeStatusBarTransparent()
 
-        var bitmap = BitmapFactory.decodeFile(uri?.let { FileUtils.getPathFrom(baseContext, it) })
-        Matrix().apply {
-            postRotate(90f)
-            bitmap = Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.width,
-                bitmap.height,
-                this,
-                true
-            )
-        }
+        binding.ivBack.setOnClickListener { onBackPressed() }
+
+        // TODO: А не в этом ли дело с неверными боксами?
+        val bitmap = BitmapFactory.decodeFile(uri?.let { FileUtils.getPathFrom(baseContext, it) })
+
         binding.ivCapturedImage.setImageBitmap(bitmap)
 //        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
         val barcodeMap =
-            intent.getSerializableExtra(CameraPreviewActivity.BARCODE_MAP) as? HashMap<String, String>
+            intent.getSerializableExtra(BARCODE_MAP) as? HashMap<String, String>
         barcodeMap?.let {
-            val resultStringBuilder = StringBuilder()
-            barcodeMap.forEach { result ->
-                if (resultStringBuilder.isNotEmpty()) {
-                    resultStringBuilder.append("\n\n")
-                }
-                resultStringBuilder.append(result)
-            }
-            binding.tvValue.text = resultStringBuilder.toString()
-
             GlobalScope.launch(handler) {
                 analyzeRepo.saveToHistory(it)
             }
         }
 
-        binding.mbSendForAnalyze.setOnClickListener {
-            uri?.let {
-                GlobalScope.launch(handler) {
-                    val state = analyzeRepo.analyze(it, barcodeMap)
-                    lifecycleScope.launch {
-                        when (state) {
-                            is Result.Success -> Toast.makeText(
-                                baseContext,
-                                state.data,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            is Result.Loading -> Toast.makeText(
-                                baseContext,
-                                "Loading",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            is Result.Error -> showErrorToast()
+        tts = TextToSpeech(baseContext, this)
+        uri?.let {
+            GlobalScope.launch(handler) {
+                val state = analyzeRepo.analyze(it, barcodeMap)
+                lifecycleScope.launch {
+                    binding.pbProgress.gone()
+                    when (state) {
+                        is ResultState.Success<AnalyzeResultApi> -> {
+                            processData(state.data)
+                            showToast("Success")
                         }
+                        is ResultState.Loading -> showToast("Loading")
+                        is ResultState.Error -> showToast("ERROR: Sending photo have not been complete")
                     }
                 }
             }
         }
     }
 
-    private fun initToolbar() {
-        binding.tbToolbar.navigationIcon =
-            ContextCompat.getDrawable(baseContext, R.drawable.ic_baseline_arrow_back_24)
-        binding.tbToolbar.setNavigationOnClickListener { onBackPressed() }
-        binding.tbToolbar.title = "Детальная информация"
+    private fun processData(data: AnalyzeResultApi?) {
+        drawBoxes(data?.ocr_data)
+
+        data?.products?.getOrNull(0)?.let { product ->
+            binding.ivProductLogo.setByteArray(product.logo)
+            binding.cvProductLogoCard.visible()
+            binding.cvProductLogoCard.setOnClickListener {
+                openProductDetails(product, false)
+            }
+            openProductDetails(product, true)
+        }
     }
 
-    private fun showErrorToast() {
-        Toast.makeText(
-            baseContext,
-            "ERROR: Sending photo have not been complete",
-            Toast.LENGTH_SHORT
-        ).show()
+    private fun openProductDetails(product: Product, voiceProduct: Boolean) {
+        ProductDetailsBottomSheetDialogFragment.newInstance(product, voiceProduct).show(
+            supportFragmentManager,
+            ProductDetailsBottomSheetDialogFragment.TAG
+        )
     }
 
-    companion object {
-        const val TAG = "CaptureActivity"
+    private fun drawBoxes(ocrData: OcrData?) {
+        ocrData?.bbox?.forEachIndexed { index, ocrBox ->
+            val text = ocrData.text?.get(index)
+            drawBox(ocrBox, text)
+        }
+        initGlobalTextSpeaker(ocrData)
+    }
 
-        const val CAPTURED_URI = "capturedUri"
-
-        fun getType(barcodeValueType: Int): String {
-            return when (barcodeValueType) {
-                FirebaseVisionBarcode.TYPE_URL -> {
-//                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.rawValue)))
-                    Log.e(TAG, "TYPE_URL")
-                    "TYPE_URL"
-                }
-                FirebaseVisionBarcode.TYPE_TEXT -> {
-//                    Toast.makeText(baseContext, item.rawValue, Toast.LENGTH_SHORT).show()
-                    Log.e(TAG, "TYPE_TEXT")
-                    "TYPE_TEXT"
-                }
-                FirebaseVisionBarcode.TYPE_CALENDAR_EVENT -> {
-                    Log.e(TAG, "TYPE_CALENDAR_EVENT")
-                    "TYPE_CALENDAR_EVENT"
-                }
-                FirebaseVisionBarcode.TYPE_CONTACT_INFO -> {
-                    Log.e(TAG, "TYPE_CONTACT_INFO")
-                    "TYPE_CONTACT_INFO"
-                }
-                FirebaseVisionBarcode.TYPE_EMAIL -> {
-                    Log.e(TAG, "TYPE_EMAIL")
-                    "TYPE_EMAIL"
-                }
-                FirebaseVisionBarcode.TYPE_PHONE -> {
-                    Log.e(TAG, "TYPE_PHONE")
-                    "TYPE_PHONE"
-                }
-                FirebaseVisionBarcode.TYPE_WIFI -> {
-                    Log.e(TAG, "TYPE_WIFI")
-                    "TYPE_WIFI"
-                }
-                FirebaseVisionBarcode.TYPE_GEO -> {
-                    Log.e(TAG, "TYPE_GEO")
-                    "TYPE_GEO"
-                }
-                FirebaseVisionBarcode.TYPE_UNKNOWN -> {
-                    Log.e(TAG, "TYPE_UNKNOWN")
-                    "TYPE_UNKNOWN"
-                }
-                FirebaseVisionBarcode.TYPE_DRIVER_LICENSE -> {
-                    Log.e(TAG, "TYPE_DRIVER_LICENSE")
-                    "TYPE_DRIVER_LICENSE"
-                }
-                FirebaseVisionBarcode.TYPE_PRODUCT -> {
-                    Log.e(TAG, "TYPE_PRODUCT")
-                    "TYPE_PRODUCT"
-                }
-                FirebaseVisionBarcode.TYPE_SMS -> {
-                    Log.e(TAG, "TYPE_SMS")
-                    "TYPE_SMS"
-                }
-                FirebaseVisionBarcode.TYPE_ISBN -> {
-                    Log.e(TAG, "TYPE_ISBN")
-                    "TYPE_ISBN"
-                }
-                else -> {
-//                    Toast.makeText(
-//                        baseContext,
-//                        "Unknown value type: ${barcode.valueType}",
-//                        Toast.LENGTH_LONG
-//                    ).show()
-                    "Unknown value type"
+    private fun initGlobalTextSpeaker(ocrData: OcrData?) {
+        if (ocrData?.text?.isNotEmpty() == true) {
+            binding.fabVoice.visible()
+            binding.fabVoice.setOnClickListener {
+                tts.setOnUtteranceProgressListener(GlobalUtteranceProgressListener())
+                if (tts.isSpeaking) {
+                    tts.stop()
+                    binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_play_arrow_24))
+                } else {
+                    binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_stop_24))
+                    voiceText(ocrData.text.toString())
                 }
             }
         }
+    }
+
+    private fun drawBox(ocrBox: List<List<Float>>, text: String?): View {
+        return BoxView(this)
+            .apply {
+                rect(ocrBox)
+                background =
+                    AppCompatResources.getDrawable(baseContext, R.drawable.background_corner_white)
+                alpha = 0.3f
+            }
+            .also { view ->
+                val lp = LinearLayoutCompat.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                lp.setMargins(ocrBox[0][0].toInt(), ocrBox[1][1].toInt(), 0, 0)
+                binding.flCaptureContent.addView(view, lp)
+                view.setOnClickListener {
+                    view.showPopup(getPopupTextToSpeech(text))
+                }
+            }
+    }
+
+    private fun getPopupTextToSpeech(text: String?): View {
+        return layoutInflater.inflate(
+            R.layout.popup_text_to_speech,
+            binding.flCaptureContent,
+            false
+        ).apply {
+            val viewBinding = PopupTextToSpeechBinding.bind(this)
+            viewBinding.tvText.text = text
+
+            viewBinding.mbTextCopy.setOnClickListener {
+                viewBinding.mbTextCopy.text = "Copied"
+                viewBinding.mbTextCopy.icon = getDrawableCompat(R.drawable.ic_baseline_check_24)
+                viewBinding.mbTextCopy.isEnabled = false
+                viewBinding.tvText.copyToClipboard()
+            }
+
+            viewBinding.mbTextToSpeech.setOnClickListener {
+                tts.setOnUtteranceProgressListener(PopupUtteranceProgressListener(viewBinding))
+
+                if (tts.isSpeaking) {
+                    tts.stop()
+                    viewBinding.mbTextToSpeech.text = getString(R.string.tv_play)
+                    viewBinding.mbTextToSpeech.icon =
+                        getDrawableCompat(R.drawable.ic_baseline_play_arrow_24)
+                } else {
+                    viewBinding.mbTextToSpeech.text = getString(R.string.tv_stop)
+                    voiceText(text)
+                }
+            }
+        }
+    }
+
+    override fun voiceText(text: String?) {
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, ttsParams, "")
+    }
+
+    override fun stop() {
+        if (::tts.isInitialized) {
+            tts.stopWithChecking()
+        }
+    }
+
+    private fun TextToSpeech.stopWithChecking() {
+        if (tts.isSpeaking) tts.stop()
+    }
+
+    override fun onInit(status: Int) {
+        var isInitSuccess = false
+        if (status == TextToSpeech.SUCCESS) {
+            if (tts.isLanguageAvailable(Locale(Locale.getDefault().language))
+                == TextToSpeech.LANG_AVAILABLE
+            ) {
+                tts.language = Locale(Locale.getDefault().language)
+            } else {
+                tts.language = Locale.US
+            }
+            tts.setPitch(1.3f)
+            tts.setSpeechRate(0.9f)
+            isInitSuccess = true
+        } else if (status == TextToSpeech.ERROR) {
+        }
+        showToast("TTS init: $isInitSuccess\n Status: $status")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (::tts.isInitialized) {
+            tts.stopWithChecking()
+            tts.shutdown()
+        }
+    }
+
+    private inner class PopupUtteranceProgressListener(private val viewBinding: PopupTextToSpeechBinding) :
+        UtteranceProgressListener() {
+
+        override fun onStart(utteranceId: String?) {
+            viewBinding.mbTextToSpeech.icon =
+                getDrawableCompat(R.drawable.ic_baseline_stop_24)
+        }
+
+        override fun onDone(utteranceId: String?) {
+            viewBinding.mbTextToSpeech.icon =
+                getDrawableCompat(R.drawable.ic_baseline_play_arrow_24)
+            viewBinding.mbTextToSpeech.text = getString(R.string.tv_play)
+        }
+
+        override fun onError(utteranceId: String?) {
+            viewBinding.mbTextToSpeech.icon =
+                getDrawableCompat(R.drawable.ic_baseline_play_arrow_24)
+            viewBinding.mbTextToSpeech.text = getString(R.string.tv_play)
+        }
+    }
+
+    private inner class GlobalUtteranceProgressListener : UtteranceProgressListener() {
+
+        override fun onStart(utteranceId: String?) {
+            binding.fabVoice.setImageDrawable(
+                ContextCompat.getDrawable(
+                    baseContext,
+                    R.drawable.ic_baseline_stop_24
+                )
+            )
+        }
+
+        override fun onDone(utteranceId: String?) {
+            binding.fabVoice.setImageDrawable(
+                ContextCompat.getDrawable(
+                    baseContext,
+                    R.drawable.ic_baseline_play_arrow_24
+                )
+            )
+        }
+
+        override fun onError(utteranceId: String?) {
+            binding.fabVoice.setImageDrawable(
+                ContextCompat.getDrawable(
+                    baseContext,
+                    R.drawable.ic_baseline_play_arrow_24
+                )
+            )
+        }
+    }
+
+    private companion object {
+        private const val TAG = "CaptureActivity"
     }
 }

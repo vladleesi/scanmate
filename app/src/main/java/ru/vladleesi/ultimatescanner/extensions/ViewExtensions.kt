@@ -2,8 +2,10 @@ package ru.vladleesi.ultimatescanner.extensions
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.graphics.BitmapFactory
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -37,4 +39,11 @@ fun TextView.copyToClipboard() {
         context.getSystemService(AppCompatActivity.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("copy", text)
     clipboard.setPrimaryClip(clip)
+}
+
+fun ImageView.setByteArray(byteArray: ByteArray?) {
+    byteArray?.let {
+        val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        setImageBitmap(bmp)
+    }
 }

@@ -1,10 +1,19 @@
 <resources>
     <string name="app_name">Scanner</string>
+
     <string name="text_open_device_camera">Open device camera</string>
     <string name="text_open_camera_preview">Open camera preview</string>
+
+    <string name="settings_sound_maker">sound_maker</string>
+    <string name="settings_auto_detect">auto_detect</string>
+    <string name="settings_test_connection">test_connection</string>
+    <string name="settings_endpoint">endpoint</string>
+    <string name="settings_url">url</string>
+
     <string name="tv_copy">Copy</string>
     <string name="tv_play">Play</string>
     <string name="tv_stop">Stop</string>
     <string name="tv_settings">Настройки</string>
     <string name="tv_history">История</string>
+    <string name="tv_buy">Купить</string>
 </resources>

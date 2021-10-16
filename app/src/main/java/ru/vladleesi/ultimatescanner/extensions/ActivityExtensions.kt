@@ -21,4 +21,7 @@ fun Activity.makeStatusBarTransparent() {
 fun Activity.getDrawableCompat(@DrawableRes drawableResId: Int): Drawable? =
     ContextCompat.getDrawable(baseContext, drawableResId)
 
-fun Activity.showToast(text: String?) = Toast.makeText(baseContext, text, Toast.LENGTH_SHORT).show()
+fun Activity.showToast(
+    text: String?,
+    long: Boolean = false
+) = Toast.makeText(baseContext, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()

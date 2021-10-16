@@ -8,17 +8,19 @@ import ru.vladleesi.ultimatescanner.databinding.RvHistoryItemBinding
 
 class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemViewHolder>() {
 
-    private val dataList by lazy { ArrayList<HistoryEntity>() }
+    private val dataList = arrayListOf<HistoryEntity>()
 
     fun setData(newDataList: List<HistoryEntity>) {
+        clearData(notify = false)
         dataList.addAll(newDataList)
         notifyDataSetChanged()
     }
 
-    fun clearData() {
+    fun clearData(notify: Boolean) {
         if (dataList.isNotEmpty()) {
             dataList.clear()
-            notifyDataSetChanged()
+            if (notify)
+                notifyDataSetChanged()
         }
     }
 
@@ -31,11 +33,9 @@ class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemVi
         holder.bind(dataList[position])
     }
 
-    override fun getItemCount(): Int {
-        return dataList.size
-    }
+    override fun getItemCount(): Int = dataList.size
 
-    inner class HistoryItemViewHolder(private val binding: RvHistoryItemBinding) :
+    class HistoryItemViewHolder(private val binding: RvHistoryItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: HistoryEntity) {

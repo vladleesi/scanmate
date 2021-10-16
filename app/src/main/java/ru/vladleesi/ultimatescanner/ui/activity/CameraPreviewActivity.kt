@@ -1,19 +1,17 @@
 package ru.vladleesi.ultimatescanner.ui.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.widget.Toast
+import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -24,21 +22,28 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOption
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import dagger.hilt.android.AndroidEntryPoint
+import ru.vladleesi.ultimatescanner.Constants.BARCODE_MAP
+import ru.vladleesi.ultimatescanner.Constants.CAMERA_PERMISSION_REQUEST
+import ru.vladleesi.ultimatescanner.Constants.CAPTURED_URI
+import ru.vladleesi.ultimatescanner.Constants.FILENAME_FORMAT
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
+import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
 import ru.vladleesi.ultimatescanner.extensions.makeStatusBarTransparent
+import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import ru.vladleesi.ultimatescanner.utils.FileUtils
+import ru.vladleesi.ultimatescanner.utils.ImageCompressUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
+import ru.vladleesi.ultimatescanner.utils.PermissionUtils.Companion.allPermissionsGranted
+import ru.vladleesi.ultimatescanner.utils.SoundMaker
 import java.io.File
-import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class CameraPreviewActivity : AppCompatActivity() {
@@ -50,12 +55,25 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     private lateinit var imageCapture: ImageCapture
 
+    private lateinit var screenResolution: Size
+
     private val mOutputDirectory by lazy { getOutputDirectory() }
     private lateinit var cameraExecutor: ExecutorService
 
     private lateinit var mDetector: FirebaseVisionBarcodeDetector
 
+    private var isDetectEnabled = true
     private val barcodeMap: HashMap<String, String> = hashMapOf()
+
+    private val defaultPreferences: SharedPreferences by lazy {
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(
+            baseContext
+        )
+    }
+    private var isDetectRequired: Boolean = false
+
+    @Inject
+    lateinit var soundMaker: SoundMaker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,27 +87,47 @@ class CameraPreviewActivity : AppCompatActivity() {
 
         PermissionUtils.requestPermission(this)
 
-        // Request camera permissions
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
-
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         binding.ivCloseApp.setOnClickListener { finish() }
 
-        binding.fabOpenSettings.setOnClickListener {
-            startActivity(Intent(baseContext, SettingsActivity::class.java))
-        }
+        initBottomNavigationView()
 
         binding.fabCapture.setOnClickListener { takePhoto() }
+    }
 
-        binding.fabOpenHistory.setOnClickListener {
-            startActivity(Intent(baseContext, HistoryActivity::class.java))
+    override fun onStart() {
+        super.onStart()
+        isDetectRequired = defaultPreferences.getBoolean(
+            getString(R.string.settings_auto_detect),
+            false
+        )
+        isDetectEnabled = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        isDetectEnabled = false
+    }
+
+    private fun initBottomNavigationView() {
+        binding.bottomNavigationView.background = null
+        binding.bottomNavigationView.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.menu_item_bottom_settings -> startActivity(
+                    Intent(
+                        baseContext,
+                        SettingsActivity::class.java
+                    )
+                )
+                R.id.menu_item_bottom_history -> startActivity(
+                    Intent(
+                        baseContext,
+                        HistoryActivity::class.java
+                    )
+                )
+            }
+            false
         }
     }
 
@@ -125,18 +163,33 @@ class CameraPreviewActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
-                    val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+//                    val savedUri = Uri.fromFile(photoFile)
+                    val msg = "Photo capture succeeded: ${photoFile.absoluteFile}"
+                    showToast(msg)
                     Log.d(TAG, msg)
 
-                    startActivity(Intent(baseContext, CaptureActivity::class.java).apply {
-                        putExtra(CaptureActivity.CAPTURED_URI, savedUri)
-                        putExtra(BARCODE_MAP, barcodeMap)
-                    })
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    val compressed =
+                        ImageCompressUtils.getCompressed(
+                            baseContext,
+                            photoFile.absolutePath,
+                            screenResolution.width,
+                            screenResolution.height
+                        )
+
+                    openDetails(Uri.fromFile(compressed))
                 }
-            })
+            }
+        )
+    }
+
+    private fun openDetails(savedUri: Uri) {
+        startActivity(
+            Intent(baseContext, CaptureActivity::class.java).apply {
+                putExtra(CAPTURED_URI, savedUri)
+                putExtra(BARCODE_MAP, barcodeMap)
+            }
+        )
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun startCamera() {
@@ -146,24 +199,35 @@ class CameraPreviewActivity : AppCompatActivity() {
             // Used to bind the lifecycle of cameras to the lifecycle owner
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
+            // Get screen metrics used to setup camera for full screen resolution
+            val metrics = DisplayMetrics().also { binding.viewFinder.display.getRealMetrics(it) }
+            screenResolution = Size(metrics.widthPixels, metrics.heightPixels)
+            val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
+            val targetRotation = binding.viewFinder.display.rotation
+
             // Preview
             val preview = Preview.Builder()
+//                .setTargetAspectRatio(screenAspectRatio)
+                .setTargetResolution(screenResolution)
+                .setTargetRotation(targetRotation)
                 .build()
                 .also {
                     it.setSurfaceProvider(findViewById<PreviewView>(R.id.viewFinder).surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture.Builder()
+//                .setTargetAspectRatio(screenAspectRatio)
+                .setTargetResolution(screenResolution)
+                .setTargetRotation(targetRotation)
+                .build()
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-            // Get screen metrics used to setup camera for full screen resolution
-            val metrics = DisplayMetrics().also { binding.viewFinder.display.getRealMetrics(it) }
-            val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-
             val imageAnalyzer = ImageAnalysis.Builder()
-                .setTargetAspectRatio(screenAspectRatio)
+//                .setTargetAspectRatio(screenAspectRatio)
+                .setTargetResolution(screenResolution)
+                .setTargetRotation(targetRotation)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
@@ -179,31 +243,32 @@ class CameraPreviewActivity : AppCompatActivity() {
                     this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
 
-                // TODO: How to delivery degrees to CameraPreviewAnalyzer?
-                val degrees = camera.cameraInfo.sensorRotationDegrees
+                if (camera.cameraInfo.hasFlashUnit()) {
+                    var isFlashlightOn = false
+                    binding.ivFlashlight.setOnClickListener {
+                        isFlashlightOn = !isFlashlightOn
+                        camera.cameraControl.enableTorch(isFlashlightOn)
+                        if (isFlashlightOn) {
+                            binding.ivFlashlight.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_flashlight_off_24))
+                        } else {
+                            binding.ivFlashlight.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_flashlight_on_24))
+                        }
+                    }
+                }
+
+                val sensorRotationDegrees = camera.cameraInfo.sensorRotationDegrees
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
-
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun getOutputDirectory(): File? {
-//        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-//            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-//        }
-//        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
-        return baseContext.externalCacheDir
-    }
+    private fun getOutputDirectory(): File? = baseContext.externalCacheDir
 
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
-        FileUtils.clearImageCompressorCache(WeakReference(applicationContext))
+        FileUtils.clearImageCompressorCache(applicationContext)
     }
 
     override fun onRequestPermissionsResult(
@@ -212,17 +277,55 @@ class CameraPreviewActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (allPermissionsGranted(baseContext)) {
                 startCamera()
             } else {
-                Toast.makeText(
-                    baseContext,
-                    "Permissions not granted by the user.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast("Permissions not granted by the user.")
                 finish()
             }
+        }
+    }
+
+    private fun aspectRatio(width: Int, height: Int): Int {
+        val previewRatio = width.coerceAtLeast(height).toDouble() / width.coerceAtMost(height)
+        if (kotlin.math.abs(previewRatio - RATIO_4_3_VALUE) <= kotlin.math.abs(previewRatio - RATIO_16_9_VALUE)) {
+            return AspectRatio.RATIO_4_3
+        }
+        return AspectRatio.RATIO_16_9
+    }
+
+    inner class CameraPreviewAnalyzer : ImageAnalysis.Analyzer {
+
+        private var isBusy = AtomicBoolean(false)
+
+        @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
+        override fun analyze(image: ImageProxy) {
+
+            if (isBusy.compareAndSet(false, true)) {
+                val mediaImage = image.image
+                if (mediaImage != null) {
+                    val visionImage = FirebaseVisionImage.fromMediaImage(
+                        mediaImage,
+                        getRotationDegrees(image.imageInfo.rotationDegrees)
+                    )
+                    // Pass image to an ML Kit Vision API
+                    runDetector(visionImage, image.width, image.height)
+
+                    image.close()
+                    isBusy.set(false)
+                }
+            } else {
+                image.close()
+            }
+        }
+
+        private fun getRotationDegrees(degrees: Int): Int = when (degrees) {
+            0 -> FirebaseVisionImageMetadata.ROTATION_0
+            90 -> FirebaseVisionImageMetadata.ROTATION_90
+            180 -> FirebaseVisionImageMetadata.ROTATION_180
+            270 -> FirebaseVisionImageMetadata.ROTATION_270
+            else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
         }
     }
 
@@ -236,11 +339,12 @@ class CameraPreviewActivity : AppCompatActivity() {
             .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
             .build()
 
-        FirebaseApp.initializeApp(applicationContext)
-        mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
-        mDetector.detectInImage(image)
-            .addOnSuccessListener { processResult(it, capturedImageWidth, capturedImageHeight) }
-            .addOnFailureListener { processFailure(it) }
+        FirebaseApp.initializeApp(applicationContext).let {
+            mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
+            mDetector.detectInImage(image)
+                .addOnSuccessListener { processResult(it, capturedImageWidth, capturedImageHeight) }
+                .addOnFailureListener { processFailure(it) }
+        }
     }
 
     private fun processResult(
@@ -260,69 +364,86 @@ class CameraPreviewActivity : AppCompatActivity() {
             barcodeMap.clear()
         }
         barcodeResults.forEach {
-            barcodeMap[CaptureActivity.getType(it.valueType)] = it.rawValue ?: ""
+            barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
+        }
+
+        // TODO: Enable
+        if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
+            isDetectEnabled = false
+            takePhoto()
+            soundMaker.playSound()
         }
     }
 
-    private fun processFailure(it: Exception) {
-        Toast.makeText(baseContext, it.message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val previewRatio = width.coerceAtLeast(height).toDouble() / width.coerceAtMost(height)
-        if (kotlin.math.abs(previewRatio - RATIO_4_3_VALUE) <= kotlin.math.abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
-        }
-        return AspectRatio.RATIO_16_9
-    }
-
-    inner class CameraPreviewAnalyzer : ImageAnalysis.Analyzer {
-
-        private var isBusy = AtomicBoolean(false)
-
-        private fun getRotationDegrees(degrees: Int): Int = when (degrees) {
-            0 -> FirebaseVisionImageMetadata.ROTATION_0
-            90 -> FirebaseVisionImageMetadata.ROTATION_90
-            180 -> FirebaseVisionImageMetadata.ROTATION_180
-            270 -> FirebaseVisionImageMetadata.ROTATION_270
-            else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
-        }
-
-        @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
-        override fun analyze(image: ImageProxy) {
-
-            if (isBusy.compareAndSet(false, true)) {
-                val mediaImage = image.image
-                if (mediaImage != null) {
-                    val visionImage = FirebaseVisionImage.fromMediaImage(
-                        mediaImage,
-                        getRotationDegrees(90)
-//                    image.imageInfo.rotationDegrees
-                    )
-                    // Pass image to an ML Kit Vision API
-                    runDetector(visionImage, image.width, image.height)
-
-                    image.close()
-                    isBusy.set(false)
-                }
-            } else {
-                image.close()
+    private fun getType(barcodeValueType: Int): String {
+        return when (barcodeValueType) {
+            FirebaseVisionBarcode.TYPE_URL -> {
+                Log.e(TAG, "TYPE_URL")
+                "TYPE_URL"
+            }
+            FirebaseVisionBarcode.TYPE_TEXT -> {
+                Log.e(TAG, "TYPE_TEXT")
+                "TYPE_TEXT"
+            }
+            FirebaseVisionBarcode.TYPE_CALENDAR_EVENT -> {
+                Log.e(TAG, "TYPE_CALENDAR_EVENT")
+                "TYPE_CALENDAR_EVENT"
+            }
+            FirebaseVisionBarcode.TYPE_CONTACT_INFO -> {
+                Log.e(TAG, "TYPE_CONTACT_INFO")
+                "TYPE_CONTACT_INFO"
+            }
+            FirebaseVisionBarcode.TYPE_EMAIL -> {
+                Log.e(TAG, "TYPE_EMAIL")
+                "TYPE_EMAIL"
+            }
+            FirebaseVisionBarcode.TYPE_PHONE -> {
+                Log.e(TAG, "TYPE_PHONE")
+                "TYPE_PHONE"
+            }
+            FirebaseVisionBarcode.TYPE_WIFI -> {
+                Log.e(TAG, "TYPE_WIFI")
+                "TYPE_WIFI"
+            }
+            FirebaseVisionBarcode.TYPE_GEO -> {
+                Log.e(TAG, "TYPE_GEO")
+                "TYPE_GEO"
+            }
+            FirebaseVisionBarcode.TYPE_UNKNOWN -> {
+                Log.e(TAG, "TYPE_UNKNOWN")
+                "TYPE_UNKNOWN"
+            }
+            FirebaseVisionBarcode.TYPE_DRIVER_LICENSE -> {
+                Log.e(TAG, "TYPE_DRIVER_LICENSE")
+                "TYPE_DRIVER_LICENSE"
+            }
+            FirebaseVisionBarcode.TYPE_PRODUCT -> {
+                Log.e(TAG, "TYPE_PRODUCT")
+                "TYPE_PRODUCT"
+            }
+            FirebaseVisionBarcode.TYPE_SMS -> {
+                Log.e(TAG, "TYPE_SMS")
+                "TYPE_SMS"
+            }
+            FirebaseVisionBarcode.TYPE_ISBN -> {
+                Log.e(TAG, "TYPE_ISBN")
+                "TYPE_ISBN"
+            }
+            else -> {
+                "Unknown value type"
             }
         }
     }
 
-    companion object {
+    private fun processFailure(it: Exception) {
+        showToast(it.message)
+    }
+
+    private companion object {
         private const val TAG = "CameraXBasic"
-        private const val FILENAME_FORMAT = "yyyyMMddHHmmssSSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-
-        const val REQUEST_CODE_FROM_CAMERA = 96
-        const val CAMERA_PERMISSION_REQUEST = 234
-
-        const val BARCODE_MAP = "barcodeSetValue"
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
 }
+    

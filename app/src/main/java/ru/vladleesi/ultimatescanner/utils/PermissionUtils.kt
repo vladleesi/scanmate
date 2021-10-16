@@ -5,11 +5,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import ru.vladleesi.ultimatescanner.ui.activity.CameraPreviewActivity
+import androidx.core.content.ContextCompat
+import ru.vladleesi.ultimatescanner.Constants.CAMERA_PERMISSION_REQUEST
 
 class PermissionUtils {
 
     companion object {
+
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+
+        fun allPermissionsGranted(context: Context) = REQUIRED_PERMISSIONS.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
 
         /** Check if this device has a camera */
         private fun checkCameraHardware(context: Context): Boolean =
@@ -21,7 +28,7 @@ class PermissionUtils {
                 ActivityCompat.requestPermissions(
                     activity,
                     arrayOf(Manifest.permission.CAMERA),
-                    CameraPreviewActivity.CAMERA_PERMISSION_REQUEST
+                    CAMERA_PERMISSION_REQUEST
                 )
             }
         }

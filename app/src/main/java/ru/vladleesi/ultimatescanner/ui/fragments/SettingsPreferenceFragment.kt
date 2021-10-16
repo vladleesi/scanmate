@@ -8,6 +8,7 @@ import androidx.preference.PreferenceFragmentCompat
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import java.lang.ref.WeakReference
@@ -24,7 +25,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(ru.vladleesi.ultimatescanner.R.xml.prefs, rootKey)
+        setPreferencesFromResource(R.xml.prefs, rootKey)
         initTestConnectionButton()
     }
 
@@ -35,7 +36,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             }
         }
 
-        findPreference<Preference>("test_connection")?.onPreferenceClickListener =
+        findPreference<Preference>(
+            context?.getString(R.string.settings_test_connection) ?: return
+        )?.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 GlobalScope.launch(handler) {
                     val message = AnalyzeRepo(WeakReference(context)).testConnection()

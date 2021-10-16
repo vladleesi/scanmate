@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/background_corner_white"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_16">
+
+    <TextView
+        android:id="@+id/tv_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        tools:text="Нурофен" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mb_text_copy"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size_small"
+        android:layout_marginTop="@dimen/margin_16"
+        android:paddingStart="@dimen/margin_8"
+        android:paddingEnd="@dimen/margin_8"
+        android:text="@string/tv_copy"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        app:cornerRadius="@dimen/corner_32"
+        app:icon="@drawable/ic_baseline_content_copy_24"
+        app:iconSize="@dimen/icon_button_size"
+        app:iconTint="@color/black" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mb_text_to_speech"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size_small"
+        android:paddingStart="@dimen/margin_8"
+        android:paddingEnd="@dimen/margin_8"
+        android:text="@string/tv_play"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        app:cornerRadius="@dimen/corner_32"
+        app:icon="@drawable/ic_baseline_play_arrow_24"
+        app:iconSize="@dimen/icon_button_size"
+        app:iconTint="@color/black" />
+
+</LinearLayout>

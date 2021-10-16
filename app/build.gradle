@@ -14,10 +14,10 @@ android {
 
     defaultConfig {
         applicationId 'ru.vladleesi.ultimatescanner'
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 8
+        versionName "0.4." + versionCode
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

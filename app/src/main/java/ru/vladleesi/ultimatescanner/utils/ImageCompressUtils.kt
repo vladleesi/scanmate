@@ -3,6 +3,8 @@ package ru.vladleesi.ultimatescanner.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import ru.vladleesi.ultimatescanner.extensions.resize
+import ru.vladleesi.ultimatescanner.extensions.rotate
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -19,7 +21,12 @@ object ImageCompressUtils {
      * @param context = Current android Context
      */
 
-    fun getCompressed(context: Context?, path: String?): File? {
+    fun getCompressed(
+        context: Context?,
+        path: String?,
+        width: Int,
+        height: Int
+    ): File? {
         return try {
             // dateFormat to generate a unique name for the compressed file.
             val dateFormat = SimpleDateFormat("yyyyMMddhhmmss", Locale.getDefault())
@@ -28,12 +35,11 @@ object ImageCompressUtils {
             // so our code fall back to internal storage cache directory, which is always available but in smaller quantity
             val imageCompressedCacheDir = FileUtils.getImageCompressorCacheDir(context)
             // decode and resize the original bitmap from @param path.
-            val bitmap =
-                decodeImageFromFiles(
-                    path,  /* your desired width */
-                    800,  /* your desired height */
-                    600
-                )
+            var bitmap = BitmapFactory.decodeFile(path)
+            if (bitmap.width > bitmap.height) {
+                bitmap = bitmap.rotate(90f)
+            }
+            bitmap = bitmap.resize(width, height)
             // create placeholder for the compressed image file
             val compressed =
                 File(
@@ -47,7 +53,7 @@ object ImageCompressUtils {
                     Bitmap.compress(Format, Quality, OutputStream)
                     Where Quality ranges from 1–100.
                 */
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
+            bitmap?.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
             /*
                     Right now, we have our bitmap inside byteArrayOutputStream Object, all we need next is to write it to the compressed file we created earlier,
                     java.io.FileOutputStream can help us do just That!
@@ -66,7 +72,7 @@ object ImageCompressUtils {
     private fun decodeImageFromFiles(path: String?, width: Int, height: Int): Bitmap {
         val scaleOptions = BitmapFactory.Options()
         scaleOptions.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(path, scaleOptions)
+//        BitmapFactory.decodeFile(path, scaleOptions)
         var scale = 1
         while (scaleOptions.outWidth / scale / 2 >= width && scaleOptions.outHeight / scale / 2 >= height) {
             scale *= 2

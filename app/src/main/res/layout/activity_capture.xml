@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_alignParentBottom="true"
-    android:orientation="vertical">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:stateListAnimator="@null">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tb_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:titleTextColor="@color/black" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    android:fitsSystemWindows="false">
 
     <FrameLayout
+        android:id="@+id/fl_capture_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/iv_captured_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true" />
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop" />
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_product_logo_card"
+            android:layout_width="@dimen/capture_button_size"
+            android:layout_height="@dimen/capture_button_size"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="@dimen/margin_16"
+            android:layout_marginBottom="@dimen/margin_16"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/corner_12"
+            app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tv_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_16"
-                android:layout_marginTop="@dimen/margin_16"
-                android:layout_marginEnd="@dimen/margin_16"
-                android:autoLink="web"
-                android:background="@drawable/background_image_text"
-                android:padding="@dimen/margin_8"
-                android:linksClickable="true"
-                android:textColor="@color/white"
-                android:textColorLink="@color/purple_700"
-                tools:text="asdsadsd" />
+            <ImageView
+                android:id="@+id/iv_product_logo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
 
-        </ScrollView>
+        </androidx.cardview.widget.CardView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/mb_send_for_analyze"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_voice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="@dimen/margin_32"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:text="Отправить"
-            android:textColor="@color/black"
-            app:backgroundTint="@color/white"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp" />
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/margin_16"
+            android:layout_marginBottom="@dimen/margin_16"
+            android:src="@drawable/ic_baseline_play_arrow_24"
+            app:backgroundTint="@color/yellow"
+            app:fabCustomSize="@dimen/capture_button_size"
+            app:maxImageSize="32dp"
+            app:tint="@color/black" />
 
     </FrameLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_16"
+        android:layout_marginTop="@dimen/margin_48"
+        android:background="@drawable/background_image_view_button"
+        android:padding="@dimen/margin_12"
+        android:src="@drawable/ic_baseline_arrow_back_24"
+        app:tint="@color/white" />
+
+    <ProgressBar
+        android:id="@+id/pb_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/background_corner_white"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/teal_700"
+        android:padding="@dimen/corner_4" />
+
+</FrameLayout>

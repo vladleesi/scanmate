@@ -45,7 +45,7 @@ class HistoryActivity : AppCompatActivity() {
         GlobalScope.launch(coroutineExceptionHandler) {
             repo.clearHistory()
             lifecycleScope.launch {
-                adapter.clearData()
+                adapter.clearData(notify = true)
                 showToast("History have been cleared")
             }
         }

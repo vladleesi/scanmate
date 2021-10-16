@@ -17,10 +17,19 @@
 
     <dimen name="corner_4">4dp</dimen>
     <dimen name="corner_8">8dp</dimen>
+    <dimen name="corner_12">12dp</dimen>
+    <dimen name="corner_24">24dp</dimen>
     <dimen name="corner_32">32dp</dimen>
 
     <dimen name="icon_button_size">16dp</dimen>
 
     <dimen name="stroke_width_scanner">3dp</dimen>
     <dimen name="stroke_height_scanner">40dp</dimen>
+
+    <dimen name="button_size_small">40dp</dimen>
+
+    <dimen name="bottom_sheet_sticker_width">96dp</dimen>
+    <dimen name="bottom_sheet_sticker_height">4dp</dimen>
+
+    <dimen name="capture_button_size">72dp</dimen>
 </resources>
