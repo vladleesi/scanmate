@@ -367,7 +367,6 @@ class CameraPreviewActivity : AppCompatActivity() {
             barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
         }
 
-        // TODO: Enable
         if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
             isDetectEnabled = false
             takePhoto()

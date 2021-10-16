@@ -61,11 +61,9 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
 
         binding.ivBack.setOnClickListener { onBackPressed() }
 
-        // TODO: А не в этом ли дело с неверными боксами?
         val bitmap = BitmapFactory.decodeFile(uri?.let { FileUtils.getPathFrom(baseContext, it) })
 
         binding.ivCapturedImage.setImageBitmap(bitmap)
-//        bitmap?.let { runDetector(FirebaseVisionImage.fromBitmap(it)) }
 
         val barcodeMap =
             intent.getSerializableExtra(BARCODE_MAP) as? HashMap<String, String>
