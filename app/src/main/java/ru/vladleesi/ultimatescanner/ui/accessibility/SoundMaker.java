@@ -1,4 +1,4 @@
-package ru.vladleesi.ultimatescanner.utils;
+package ru.vladleesi.ultimatescanner.ui.accessibility;
 
 import android.content.Context;
 import android.content.SharedPreferences;

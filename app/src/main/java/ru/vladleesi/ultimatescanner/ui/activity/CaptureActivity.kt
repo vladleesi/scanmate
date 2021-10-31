@@ -130,7 +130,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
                     binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_play_arrow_24))
                 } else {
                     binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_stop_24))
-                    voiceText(ocrData.text.toString())
+                    voice(ocrData.text.toString())
                 }
             }
         }
@@ -183,13 +183,13 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
                         getDrawableCompat(R.drawable.ic_baseline_play_arrow_24)
                 } else {
                     viewBinding.mbTextToSpeech.text = getString(R.string.tv_stop)
-                    voiceText(text)
+                    voice(text)
                 }
             }
         }
     }
 
-    override fun voiceText(text: String?) {
+    override fun voice(text: String?) {
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, ttsParams, "")
     }
 

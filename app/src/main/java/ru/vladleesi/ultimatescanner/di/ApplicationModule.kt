@@ -7,7 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.vladleesi.ultimatescanner.utils.SoundMaker
+import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
+import ru.vladleesi.ultimatescanner.ui.accessibility.VoiceMaker
 import javax.inject.Singleton
 
 @Module
@@ -23,4 +24,9 @@ object ApplicationModule {
     @Provides
     fun bindSoundMaker(@ApplicationContext context: Context): SoundMaker =
         SoundMaker.getInstance(context)
+
+    @Singleton
+    @Provides
+    fun bindTTS(@ApplicationContext context: Context): VoiceMaker =
+        VoiceMaker.getInstance(context)
 }

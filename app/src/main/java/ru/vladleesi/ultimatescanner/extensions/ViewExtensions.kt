@@ -5,10 +5,14 @@ import android.content.ClipboardManager
 import android.graphics.BitmapFactory
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
+import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager.widget.ViewPager
+import ru.vladleesi.ultimatescanner.R
 
 fun View.visible() = setVisibilityInner(View.VISIBLE)
 fun View.invisible() = setVisibilityInner(View.INVISIBLE)
@@ -46,4 +50,46 @@ fun ImageView.setByteArray(byteArray: ByteArray?) {
         val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
         setImageBitmap(bmp)
     }
+}
+
+fun View.animate(@AnimRes animResId: Int) {
+    startAnimation(AnimationUtils.loadAnimation(context, animResId))
+}
+
+fun View.showWithAnim() {
+    animate(R.anim.enlarge)
+    visible()
+}
+
+fun View.showWithAnim(delay: Long) {
+    postDelayed({ showWithAnim() }, delay)
+}
+
+fun View.hideWithAnim() {
+    animate(R.anim.shrink)
+    postOnAnimation { gone() }
+}
+
+fun View.hideWithAnim(delay: Long = 0) {
+    postDelayed({ hideWithAnim() }, delay)
+}
+
+fun ViewPager.addOnPageSelected(action: (position: Int) -> Unit) {
+    addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        override fun onPageScrolled(
+            position: Int,
+            positionOffset: Float,
+            positionOffsetPixels: Int
+        ) {
+            // ignore
+        }
+
+        override fun onPageSelected(position: Int) {
+            action(position)
+        }
+
+        override fun onPageScrollStateChanged(state: Int) {
+            // ignore
+        }
+    })
 }

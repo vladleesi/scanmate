@@ -9,6 +9,7 @@
 
         <item name="android:navigationBarColor">@color/black</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:statusBarColor">@color/black</item>
     </style>
 
     <!-- Bottom sheet corner style -->
@@ -30,6 +31,12 @@
         <item name="android:letterSpacing">0</item>
         <!--        <item name="backgroundTint">@null</item>-->
         <!--        <item name="android:background">@drawable/background_ripple_corner_gradient</item>-->
+    </style>
+
+    <!-- Tabs title style -->
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 </resources>

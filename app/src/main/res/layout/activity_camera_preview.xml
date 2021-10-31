@@ -99,7 +99,7 @@
             android:id="@+id/fab_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/app_name"
+            android:contentDescription="@string/text_description"
             android:src="@drawable/ic_baseline_image_search_24"
             app:backgroundTint="@color/yellow"
             app:layout_anchor="@id/bottom_app_bar"

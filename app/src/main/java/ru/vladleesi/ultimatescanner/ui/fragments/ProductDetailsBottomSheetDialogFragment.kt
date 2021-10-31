@@ -45,7 +45,7 @@ class ProductDetailsBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 binding.mbOpenProductStore.gone()
 
             if (arguments?.getBoolean(Constants.VOICE_PRODUCT) == true)
-                speecher?.voiceText(binding.tvProductTitle.text.toString())
+                speecher?.voice(binding.tvProductTitle.text.toString())
         }
     }
 

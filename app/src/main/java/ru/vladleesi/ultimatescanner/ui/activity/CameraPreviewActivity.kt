@@ -31,12 +31,12 @@ import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
 import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
 import ru.vladleesi.ultimatescanner.extensions.makeStatusBarTransparent
 import ru.vladleesi.ultimatescanner.extensions.showToast
+import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
 import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.ImageCompressUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils.Companion.allPermissionsGranted
-import ru.vladleesi.ultimatescanner.utils.SoundMaker
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*

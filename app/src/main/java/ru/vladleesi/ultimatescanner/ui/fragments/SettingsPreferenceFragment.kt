@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -46,6 +47,14 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
                         activity?.showToast(message)
                     }
                 }
+                true
+            }
+
+        findPreference<SwitchPreference>(
+            context?.getString(R.string.settings_auto_detect) ?: return
+        )?.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+
                 true
             }
     }

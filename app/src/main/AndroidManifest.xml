@@ -42,13 +42,14 @@
         </provider>
 
         <activity
+            android:name=".ui.activity.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
+        <activity
             android:name="ru.vladleesi.ultimatescanner.ui.activity.CameraPreviewActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name="ru.vladleesi.ultimatescanner.ui.activity.SettingsActivity"
             android:screenOrientation="portrait" />
@@ -58,6 +59,14 @@
         <activity
             android:name="ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.SwitchActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

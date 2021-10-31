@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ru.vladleesi.ultimatescanner.ui.view.BarcodeOverlay
+        android:id="@+id/bo_barcode_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/v_scanner_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/tv_scanner_area_info"
+        android:layout_marginStart="@dimen/margin_40"
+        android:layout_marginTop="@dimen/margin_128"
+        android:layout_marginEnd="@dimen/margin_40"
+        android:layout_marginBottom="@dimen/margin_16"
+        android:background="@drawable/background_border_corner_scanner" />
+
+    <TextView
+        android:id="@+id/tv_scanner_area_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/margin_128"
+        android:paddingStart="@dimen/margin_4"
+        android:paddingTop="@dimen/margin_2"
+        android:paddingEnd="@dimen/margin_4"
+        android:paddingBottom="@dimen/margin_2"
+        android:text="@string/text_scanner_area_info"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/iv_flashlight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/v_scanner_area"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/margin_32"
+        android:layout_marginEnd="@dimen/margin_40"
+        android:background="@drawable/background_image_view_button"
+        android:padding="@dimen/margin_12"
+        android:src="@drawable/ic_baseline_flashlight_on_24"
+        app:tint="@color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_flashlight"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/text_description"
+        android:src="@drawable/ic_baseline_image_search_24"
+        android:visibility="invisible"
+        app:backgroundTint="@color/yellow"
+        app:tint="@color/black" />
+
+</RelativeLayout>
