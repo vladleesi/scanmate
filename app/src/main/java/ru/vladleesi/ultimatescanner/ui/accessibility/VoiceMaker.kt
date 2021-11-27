@@ -45,7 +45,6 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
             tts.setSpeechRate(0.9f)
             isInitSuccess = true
         } else if (status == TextToSpeech.ERROR) {
-
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
     }

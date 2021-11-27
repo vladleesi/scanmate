@@ -46,7 +46,6 @@ class SettingsTabFragment : TabFragment() {
             .commit()
     }
 
-
     companion object {
         const val TAG = "SettingsFragment"
 

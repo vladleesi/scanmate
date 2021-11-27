@@ -11,4 +11,6 @@ object Constants {
     const val CAMERA_PERMISSION_REQUEST = 234
 
     const val BARCODE_MAP = "barcodeSetValue"
+
+    const val AUTO_DETECT_FRAGMENT = "auto_detect_fragment"
 }

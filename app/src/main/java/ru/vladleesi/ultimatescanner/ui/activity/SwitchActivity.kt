@@ -21,5 +21,4 @@ class SwitchActivity : AppCompatActivity(R.layout.activity_switch) {
             startActivity(Intent(baseContext, MainActivity::class.java))
         }
     }
-
 }

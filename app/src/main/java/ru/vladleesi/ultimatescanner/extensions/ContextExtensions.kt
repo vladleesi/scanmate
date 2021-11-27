@@ -3,7 +3,6 @@ package ru.vladleesi.ultimatescanner.extensions
 import android.content.Context
 import android.widget.Toast
 
-
 fun Context.showToast(
     text: String?,
     long: Boolean = false

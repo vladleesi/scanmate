@@ -14,7 +14,6 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
-
 class CameraPreviewAnalyzer(
     private val weakContext: WeakReference<Context>,
     private val analyzeProcess: AnalyzeProcess

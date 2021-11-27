@@ -4,7 +4,6 @@ import android.util.Base64
 import com.squareup.moshi.*
 import java.lang.reflect.Type
 
-
 class Base64AdapterFactory : JsonAdapter.Factory {
 
     override fun create(
@@ -20,7 +19,6 @@ class Base64AdapterFactory : JsonAdapter.Factory {
         return null
     }
 
-
     private class Base64Adapter : JsonAdapter<ByteArray?>() {
 
         override fun fromJson(reader: JsonReader): ByteArray? {
@@ -32,6 +30,5 @@ class Base64AdapterFactory : JsonAdapter.Factory {
             val string = Base64.encodeToString(value, Base64.NO_WRAP)
             writer.value(string)
         }
-
     }
 }
