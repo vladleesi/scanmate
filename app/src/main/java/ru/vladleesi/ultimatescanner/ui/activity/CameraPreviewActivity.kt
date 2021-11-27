@@ -9,7 +9,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
+import androidx.camera.core.* // ktlint-disable no-wildcard-imports
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -39,7 +39,7 @@ import ru.vladleesi.ultimatescanner.utils.PermissionUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils.Companion.allPermissionsGranted
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.* // ktlint-disable no-wildcard-imports
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -261,188 +261,188 @@ class CameraPreviewActivity : AppCompatActivity() {
                 Log.e(TAG, "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
-    }
-
-    private fun getOutputDirectory(): File? = baseContext.externalCacheDir
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cameraExecutor.shutdown()
-        FileUtils.clearImageCompressorCache(applicationContext)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_PERMISSION_REQUEST) {
-            if (allPermissionsGranted(baseContext)) {
-                startCamera()
-            } else {
-                showToast("Permissions not granted by the user.")
-                finish()
-            }
         }
-    }
 
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val previewRatio = width.coerceAtLeast(height).toDouble() / width.coerceAtMost(height)
-        if (kotlin.math.abs(previewRatio - RATIO_4_3_VALUE) <= kotlin.math.abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
+        private fun getOutputDirectory(): File? = baseContext.externalCacheDir
+
+        override fun onDestroy() {
+            super.onDestroy()
+            cameraExecutor.shutdown()
+            FileUtils.clearImageCompressorCache(applicationContext)
         }
-        return AspectRatio.RATIO_16_9
-    }
 
-    inner class CameraPreviewAnalyzer : ImageAnalysis.Analyzer {
-
-        private var isBusy = AtomicBoolean(false)
-
-        @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
-        override fun analyze(image: ImageProxy) {
-
-            if (isBusy.compareAndSet(false, true)) {
-                val mediaImage = image.image
-                if (mediaImage != null) {
-                    val visionImage = FirebaseVisionImage.fromMediaImage(
-                        mediaImage,
-                        getRotationDegrees(image.imageInfo.rotationDegrees)
-                    )
-                    // Pass image to an ML Kit Vision API
-                    runDetector(visionImage, image.width, image.height)
-
-                    image.close()
-                    isBusy.set(false)
+        override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
+        ) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            if (requestCode == CAMERA_PERMISSION_REQUEST) {
+                if (allPermissionsGranted(baseContext)) {
+                    startCamera()
+                } else {
+                    showToast("Permissions not granted by the user.")
+                    finish()
                 }
-            } else {
-                image.close()
             }
         }
 
-        private fun getRotationDegrees(degrees: Int): Int = when (degrees) {
-            0 -> FirebaseVisionImageMetadata.ROTATION_0
-            90 -> FirebaseVisionImageMetadata.ROTATION_90
-            180 -> FirebaseVisionImageMetadata.ROTATION_180
-            270 -> FirebaseVisionImageMetadata.ROTATION_270
-            else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
+        private fun aspectRatio(width: Int, height: Int): Int {
+            val previewRatio = width.coerceAtLeast(height).toDouble() / width.coerceAtMost(height)
+            if (kotlin.math.abs(previewRatio - RATIO_4_3_VALUE) <= kotlin.math.abs(previewRatio - RATIO_16_9_VALUE)) {
+                return AspectRatio.RATIO_4_3
+            }
+            return AspectRatio.RATIO_16_9
         }
-    }
 
-    private fun runDetector(
-        image: FirebaseVisionImage,
-        capturedImageWidth: Int,
-        capturedImageHeight: Int
-    ) {
+        inner class CameraPreviewAnalyzer : ImageAnalysis.Analyzer {
 
-        val options = FirebaseVisionBarcodeDetectorOptions.Builder()
-            .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
-            .build()
+            private var isBusy = AtomicBoolean(false)
 
-        FirebaseApp.initializeApp(applicationContext).let {
-            mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
-            mDetector.detectInImage(image)
-                .addOnSuccessListener { processResult(it, capturedImageWidth, capturedImageHeight) }
-                .addOnFailureListener { processFailure(it) }
+            @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
+            override fun analyze(image: ImageProxy) {
+
+                if (isBusy.compareAndSet(false, true)) {
+                    val mediaImage = image.image
+                    if (mediaImage != null) {
+                        val visionImage = FirebaseVisionImage.fromMediaImage(
+                            mediaImage,
+                            getRotationDegrees(image.imageInfo.rotationDegrees)
+                        )
+                        // Pass image to an ML Kit Vision API
+                        runDetector(visionImage, image.width, image.height)
+
+                        image.close()
+                        isBusy.set(false)
+                    }
+                } else {
+                    image.close()
+                }
+            }
+
+            private fun getRotationDegrees(degrees: Int): Int = when (degrees) {
+                0 -> FirebaseVisionImageMetadata.ROTATION_0
+                90 -> FirebaseVisionImageMetadata.ROTATION_90
+                180 -> FirebaseVisionImageMetadata.ROTATION_180
+                270 -> FirebaseVisionImageMetadata.ROTATION_270
+                else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
+            }
         }
-    }
 
-    private fun processResult(
-        barcodeResults: List<FirebaseVisionBarcode>,
-        capturedImageWidth: Int,
-        capturedImageHeight: Int
-    ) {
-        binding.boBarcodeOverlay.overlay(
-            ScanResult(
-                barcodeResults,
-                capturedImageWidth,
-                capturedImageHeight
+        private fun runDetector(
+            image: FirebaseVisionImage,
+            capturedImageWidth: Int,
+            capturedImageHeight: Int
+        ) {
+
+            val options = FirebaseVisionBarcodeDetectorOptions.Builder()
+                .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
+                .build()
+
+            FirebaseApp.initializeApp(applicationContext).let {
+                mDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
+                mDetector.detectInImage(image)
+                    .addOnSuccessListener { processResult(it, capturedImageWidth, capturedImageHeight) }
+                    .addOnFailureListener { processFailure(it) }
+            }
+        }
+
+        private fun processResult(
+            barcodeResults: List<FirebaseVisionBarcode>,
+            capturedImageWidth: Int,
+            capturedImageHeight: Int
+        ) {
+            binding.boBarcodeOverlay.overlay(
+                ScanResult(
+                    barcodeResults,
+                    capturedImageWidth,
+                    capturedImageHeight
+                )
             )
-        )
 
-        if (barcodeMap.isNotEmpty()) {
-            barcodeMap.clear()
-        }
-        barcodeResults.forEach {
-            barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
-        }
+            if (barcodeMap.isNotEmpty()) {
+                barcodeMap.clear()
+            }
+            barcodeResults.forEach {
+                barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
+            }
 
-        if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
-            isDetectEnabled = false
-            takePhoto()
-            soundMaker.playSound()
-        }
-    }
-
-    private fun getType(barcodeValueType: Int): String {
-        return when (barcodeValueType) {
-            FirebaseVisionBarcode.TYPE_URL -> {
-                Log.e(TAG, "TYPE_URL")
-                "TYPE_URL"
-            }
-            FirebaseVisionBarcode.TYPE_TEXT -> {
-                Log.e(TAG, "TYPE_TEXT")
-                "TYPE_TEXT"
-            }
-            FirebaseVisionBarcode.TYPE_CALENDAR_EVENT -> {
-                Log.e(TAG, "TYPE_CALENDAR_EVENT")
-                "TYPE_CALENDAR_EVENT"
-            }
-            FirebaseVisionBarcode.TYPE_CONTACT_INFO -> {
-                Log.e(TAG, "TYPE_CONTACT_INFO")
-                "TYPE_CONTACT_INFO"
-            }
-            FirebaseVisionBarcode.TYPE_EMAIL -> {
-                Log.e(TAG, "TYPE_EMAIL")
-                "TYPE_EMAIL"
-            }
-            FirebaseVisionBarcode.TYPE_PHONE -> {
-                Log.e(TAG, "TYPE_PHONE")
-                "TYPE_PHONE"
-            }
-            FirebaseVisionBarcode.TYPE_WIFI -> {
-                Log.e(TAG, "TYPE_WIFI")
-                "TYPE_WIFI"
-            }
-            FirebaseVisionBarcode.TYPE_GEO -> {
-                Log.e(TAG, "TYPE_GEO")
-                "TYPE_GEO"
-            }
-            FirebaseVisionBarcode.TYPE_UNKNOWN -> {
-                Log.e(TAG, "TYPE_UNKNOWN")
-                "TYPE_UNKNOWN"
-            }
-            FirebaseVisionBarcode.TYPE_DRIVER_LICENSE -> {
-                Log.e(TAG, "TYPE_DRIVER_LICENSE")
-                "TYPE_DRIVER_LICENSE"
-            }
-            FirebaseVisionBarcode.TYPE_PRODUCT -> {
-                Log.e(TAG, "TYPE_PRODUCT")
-                "TYPE_PRODUCT"
-            }
-            FirebaseVisionBarcode.TYPE_SMS -> {
-                Log.e(TAG, "TYPE_SMS")
-                "TYPE_SMS"
-            }
-            FirebaseVisionBarcode.TYPE_ISBN -> {
-                Log.e(TAG, "TYPE_ISBN")
-                "TYPE_ISBN"
-            }
-            else -> {
-                "Unknown value type"
+            if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
+                isDetectEnabled = false
+                takePhoto()
+                soundMaker.playSound()
             }
         }
-    }
 
-    private fun processFailure(it: Exception) {
-        showToast(it.message)
-    }
+        private fun getType(barcodeValueType: Int): String {
+            return when (barcodeValueType) {
+                FirebaseVisionBarcode.TYPE_URL -> {
+                    Log.e(TAG, "TYPE_URL")
+                    "TYPE_URL"
+                }
+                FirebaseVisionBarcode.TYPE_TEXT -> {
+                    Log.e(TAG, "TYPE_TEXT")
+                    "TYPE_TEXT"
+                }
+                FirebaseVisionBarcode.TYPE_CALENDAR_EVENT -> {
+                    Log.e(TAG, "TYPE_CALENDAR_EVENT")
+                    "TYPE_CALENDAR_EVENT"
+                }
+                FirebaseVisionBarcode.TYPE_CONTACT_INFO -> {
+                    Log.e(TAG, "TYPE_CONTACT_INFO")
+                    "TYPE_CONTACT_INFO"
+                }
+                FirebaseVisionBarcode.TYPE_EMAIL -> {
+                    Log.e(TAG, "TYPE_EMAIL")
+                    "TYPE_EMAIL"
+                }
+                FirebaseVisionBarcode.TYPE_PHONE -> {
+                    Log.e(TAG, "TYPE_PHONE")
+                    "TYPE_PHONE"
+                }
+                FirebaseVisionBarcode.TYPE_WIFI -> {
+                    Log.e(TAG, "TYPE_WIFI")
+                    "TYPE_WIFI"
+                }
+                FirebaseVisionBarcode.TYPE_GEO -> {
+                    Log.e(TAG, "TYPE_GEO")
+                    "TYPE_GEO"
+                }
+                FirebaseVisionBarcode.TYPE_UNKNOWN -> {
+                    Log.e(TAG, "TYPE_UNKNOWN")
+                    "TYPE_UNKNOWN"
+                }
+                FirebaseVisionBarcode.TYPE_DRIVER_LICENSE -> {
+                    Log.e(TAG, "TYPE_DRIVER_LICENSE")
+                    "TYPE_DRIVER_LICENSE"
+                }
+                FirebaseVisionBarcode.TYPE_PRODUCT -> {
+                    Log.e(TAG, "TYPE_PRODUCT")
+                    "TYPE_PRODUCT"
+                }
+                FirebaseVisionBarcode.TYPE_SMS -> {
+                    Log.e(TAG, "TYPE_SMS")
+                    "TYPE_SMS"
+                }
+                FirebaseVisionBarcode.TYPE_ISBN -> {
+                    Log.e(TAG, "TYPE_ISBN")
+                    "TYPE_ISBN"
+                }
+                else -> {
+                    "Unknown value type"
+                }
+            }
+        }
 
-    private companion object {
-        private const val TAG = "CameraXBasic"
+        private fun processFailure(it: Exception) {
+            showToast(it.message)
+        }
 
-        private const val RATIO_4_3_VALUE = 4.0 / 3.0
-        private const val RATIO_16_9_VALUE = 16.0 / 9.0
+        private companion object {
+            private const val TAG = "CameraXBasic"
+
+            private const val RATIO_4_3_VALUE = 4.0 / 3.0
+            private const val RATIO_16_9_VALUE = 16.0 / 9.0
+        }
     }
-}
     
