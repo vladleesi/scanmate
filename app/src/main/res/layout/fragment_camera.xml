@@ -63,7 +63,7 @@
         android:contentDescription="@string/text_description"
         android:src="@drawable/ic_baseline_image_search_24"
         android:visibility="invisible"
-        app:backgroundTint="@color/yellow"
+        app:backgroundTint="@color/blue"
         app:tint="@color/black" />
 
 </RelativeLayout>

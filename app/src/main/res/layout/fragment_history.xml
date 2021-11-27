@@ -27,7 +27,7 @@
         android:layout_marginEnd="@dimen/margin_16"
         android:layout_marginBottom="@dimen/margin_16"
         android:src="@drawable/ic_baseline_delete_forever_24"
-        app:backgroundTint="@color/yellow"
+        app:backgroundTint="@color/blue"
         app:tint="@color/black" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
