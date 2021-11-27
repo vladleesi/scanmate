@@ -2,6 +2,9 @@ package ru.vladleesi.ultimatescanner.ui.fragments
 
 import androidx.annotation.LayoutRes
 
-abstract class TabFragment(@LayoutRes layoutId: Int) : BaseFragment(layoutId) {
+abstract class TabFragment : BaseFragment {
     abstract val pageTitleId: Int
+
+    constructor() : super()
+    constructor(@LayoutRes layoutId: Int) : super(layoutId)
 }
