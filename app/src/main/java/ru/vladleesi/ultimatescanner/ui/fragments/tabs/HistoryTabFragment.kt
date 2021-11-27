@@ -1,9 +1,7 @@
 package ru.vladleesi.ultimatescanner.ui.fragments.tabs
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
@@ -16,7 +14,7 @@ import ru.vladleesi.ultimatescanner.ui.adapter.HistoryListAdapter
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 import java.lang.ref.WeakReference
 
-class HistoryTabFragment : TabFragment() {
+class HistoryTabFragment : TabFragment(R.layout.fragment_history) {
 
     override val pageTitleId: Int
         get() = R.string.page_title_history
@@ -32,12 +30,6 @@ class HistoryTabFragment : TabFragment() {
             }
         }
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_history, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

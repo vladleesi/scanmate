@@ -1,26 +1,18 @@
 package ru.vladleesi.ultimatescanner.ui.fragments.tabs
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivitySettingsBinding
 import ru.vladleesi.ultimatescanner.ui.fragments.SettingsPreferenceFragment
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 
-class SettingsTabFragment : TabFragment() {
+class SettingsTabFragment : TabFragment(R.layout.activity_settings) {
 
     private lateinit var binding: ActivitySettingsBinding
 
     override val pageTitleId: Int
         get() = R.string.page_title_settings
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.activity_settings, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
