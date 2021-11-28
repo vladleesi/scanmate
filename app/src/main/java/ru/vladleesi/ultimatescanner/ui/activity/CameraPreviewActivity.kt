@@ -72,8 +72,7 @@ class CameraPreviewActivity : AppCompatActivity() {
     }
     private var isDetectRequired: Boolean = false
 
-    @Inject
-    lateinit var soundMaker: SoundMaker
+    private val soundMaker = SoundMaker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
