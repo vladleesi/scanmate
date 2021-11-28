@@ -3,6 +3,7 @@ package ru.vladleesi.ultimatescanner.extensions
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
@@ -74,8 +75,13 @@ fun View.hideWithAnim(delay: Long = 0) {
     postDelayed({ hideWithAnim() }, delay)
 }
 
-fun ViewPager.addOnPageSelected(action: (position: Int) -> Unit) {
+fun ViewPager.addOnPageSelected(infinityScroll: Boolean, action: (position: Int) -> Unit) {
     addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+
+        private val lastPosition = adapter?.count?.minus(1) ?: -1
+        private var currentPosition = 0
+        private var isDragged = false
+
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
@@ -85,11 +91,30 @@ fun ViewPager.addOnPageSelected(action: (position: Int) -> Unit) {
         }
 
         override fun onPageSelected(position: Int) {
+            currentPosition = position
             action(position)
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            // ignore
+            if (infinityScroll) {
+                when (state) {
+                    ViewPager.SCROLL_STATE_IDLE -> Log.d(TAG, "ViewPager.SCROLL_STATE_IDLE")
+                    ViewPager.SCROLL_STATE_DRAGGING -> Log.d(TAG, "ViewPager.SCROLL_STATE_DRAGGING")
+                    ViewPager.SCROLL_STATE_SETTLING -> Log.d(TAG, "ViewPager.SCROLL_STATE_SETTLING")
+                }
+
+                if (state == ViewPager.SCROLL_STATE_IDLE && isDragged && currentPosition == lastPosition) {
+                    setCurrentItem(0, true)
+                }
+
+                if (state == ViewPager.SCROLL_STATE_IDLE && isDragged && currentPosition == 0) {
+                    setCurrentItem(lastPosition, true)
+                }
+
+                isDragged = state == ViewPager.SCROLL_STATE_DRAGGING
+            }
         }
     })
 }
+
+const val TAG = "ViewExtensions"

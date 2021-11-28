@@ -12,7 +12,7 @@ class MainTabAdapter(fm: FragmentManager, private val resourceHolder: ResourceHo
     FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     private val fragments = listOf(
-        CameraTabFragment.newInstance(),
+        CameraTabFragment.newInstance(autoDetect = false),
         HistoryTabFragment.newInstance(),
         SettingsTabFragment.newInstance()
     )

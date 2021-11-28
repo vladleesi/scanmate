@@ -10,10 +10,11 @@ import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
 import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
 import ru.vladleesi.ultimatescanner.ui.accessibility.VoiceMaker
 import ru.vladleesi.ultimatescanner.ui.adapter.MainTabAdapter
+import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraTabFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), ResourceHolder {
+class MainActivity : AppCompatActivity(), ResourceHolder, SettingsManager {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -21,38 +22,51 @@ class MainActivity : AppCompatActivity(), ResourceHolder {
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
     @Inject
-    lateinit var soundMaker: SoundMaker
-
-    @Inject
     lateinit var voiceMaker: VoiceMaker
+
+    private val soundMaker = SoundMaker()
+
+    //    private val tabAdapter by lazy { InfinityMainTabAdapter(supportFragmentManager, this) }
+    private val tabAdapter by lazy { MainTabAdapter(supportFragmentManager, this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
 
-        // TODO:
-        //  1. Камера не переинициализируется после уничтождения фрагмента
-        //  2. При скроле истории уезжает тулбар
-        //  3. Флаги доступности автодетекта и сигнала должны применятся моментально, через активити?
-        //  4. Анимировать появление фрагмента только после инициализации камеры, найти нужны слушатель
-        //  5. Рефакторинг + удалить струю навигацию
-
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, Bundle())
 
-        val tabAdapter = MainTabAdapter(supportFragmentManager, this)
         binding.fragmentContainer.adapter = tabAdapter
         binding.tabs.setupWithViewPager(binding.fragmentContainer)
+//        binding.fragmentContainer.currentItem = tabAdapter.middle + 1
 
-        binding.fragmentContainer.addOnPageSelected {
-            val fragmentTitle = tabAdapter.getPageTitle(position = it)
+//        for (index in 0 until tabAdapter.getRealCount()) {
+//            binding.tabs.addTab(TabLayout.Tab().apply { text = tabAdapter.getPageTitle(index) })
+//        }
+//        binding.tabs.getTabAt(1)?.select()
+
+        binding.fragmentContainer.addOnPageSelected(infinityScroll = false) { position ->
+            val fragmentTitle = tabAdapter.getPageTitle(position = position)
             voiceMaker.voice(fragmentTitle.toString())
             binding.root.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
+//            binding.tabs.getTabAt(tabAdapter.getRealPosition(position))?.select()
         }
     }
 
     override fun getStringRes(stringResId: Int): String = getString(stringResId)
+
+    override fun onAutodetectChanged(isAutodetect: Boolean) {
+        val cameraFragment = tabAdapter.getItem(0) as? CameraTabFragment
+        cameraFragment?.setCameraDetectSettings(isAutodetect)
+    }
+
+    override fun onSoundChanged(isSound: Boolean) {
+        soundMaker.setEnable(isSound)
+        voiceMaker.setEnable(isSound)
+    }
+
+    fun playSound() = soundMaker.playSound()
 }

@@ -1,18 +1,11 @@
 package ru.vladleesi.ultimatescanner.ui.accessibility;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
-
-import ru.vladleesi.ultimatescanner.R;
 
 
 public class SoundMaker {
@@ -23,16 +16,11 @@ public class SoundMaker {
     private final int numSamples = durationInSeconds * sampleRate;
     private final double[] sample = new double[numSamples];
     private final byte[] generatedSnd = new byte[2 * numSamples];
-    private final SharedPreferences defaultPreferences;
-    private final String prefsKey;
 
-    private SoundMaker(@NonNull Context context) {
-        defaultPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        prefsKey = context.getString(R.string.settings_sound_maker);
-    }
+    private boolean isEnable = false;
 
-    public static SoundMaker getInstance(@NonNull Context context) {
-        return new SoundMaker(context);
+    public void setEnable(boolean isEnable) {
+        this.isEnable = isEnable;
     }
 
     private void genTone() {
@@ -57,7 +45,6 @@ public class SoundMaker {
     }
 
     public void playSound() {
-        boolean isEnable = defaultPreferences.getBoolean(prefsKey, false);
         if (isEnable) {
             genTone();
             Handler handler = new Handler(Looper.getMainLooper());

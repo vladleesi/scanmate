@@ -9,7 +9,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.* // ktlint-disable no-wildcard-imports
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -28,6 +28,7 @@ import ru.vladleesi.ultimatescanner.Constants.CAPTURED_URI
 import ru.vladleesi.ultimatescanner.Constants.FILENAME_FORMAT
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityCameraPreviewBinding
+import ru.vladleesi.ultimatescanner.extensions.allPermissionsGranted
 import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
 import ru.vladleesi.ultimatescanner.extensions.makeStatusBarTransparent
 import ru.vladleesi.ultimatescanner.extensions.showToast
@@ -36,10 +37,9 @@ import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import ru.vladleesi.ultimatescanner.utils.ImageCompressUtils
 import ru.vladleesi.ultimatescanner.utils.PermissionUtils
-import ru.vladleesi.ultimatescanner.utils.PermissionUtils.Companion.allPermissionsGranted
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.* // ktlint-disable no-wildcard-imports
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -278,7 +278,7 @@ class CameraPreviewActivity : AppCompatActivity() {
         ) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             if (requestCode == CAMERA_PERMISSION_REQUEST) {
-                if (allPermissionsGranted(baseContext)) {
+                if (allPermissionsGranted()) {
                     startCamera()
                 } else {
                     showToast("Permissions not granted by the user.")

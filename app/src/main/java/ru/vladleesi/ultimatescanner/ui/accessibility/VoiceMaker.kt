@@ -13,14 +13,21 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
 
     private val tts = TextToSpeech(weakContext.get(), this)
 
+    private var isEnable = false
+
     private val ttsParams by lazy {
         Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
         }
     }
 
+    fun setEnable(isEnable: Boolean) {
+        this.isEnable = isEnable
+    }
+
     override fun voice(text: String?) {
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, ttsParams, "")
+        if (isEnable)
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, ttsParams, "")
     }
 
     override fun stop() {

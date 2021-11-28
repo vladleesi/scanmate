@@ -12,9 +12,14 @@ import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.extensions.showToast
+import ru.vladleesi.ultimatescanner.ui.fragments.tabs.SettingsTabFragment
 import java.lang.ref.WeakReference
 
 class SettingsPreferenceFragment : PreferenceFragmentCompat() {
+
+    private val settingsManager by lazy {
+        (parentFragment as? SettingsTabFragment)?.getSettingsManager()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,9 +57,17 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreference>(
             context?.getString(R.string.settings_auto_detect) ?: return
-        )?.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
+        )?.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                settingsManager?.onAutodetectChanged(newValue == true)
+                true
+            }
 
+        findPreference<SwitchPreference>(
+            context?.getString(R.string.settings_sound_maker) ?: return
+        )?.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                settingsManager?.onSoundChanged(newValue == true)
                 true
             }
     }

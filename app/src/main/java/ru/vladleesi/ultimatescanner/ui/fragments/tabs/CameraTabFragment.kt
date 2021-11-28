@@ -6,21 +6,19 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
+import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import ru.vladleesi.ultimatescanner.Constants
+import ru.vladleesi.ultimatescanner.Constants.AUTO_DETECT_FRAGMENT
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.FragmentCameraBinding
-import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
-import ru.vladleesi.ultimatescanner.extensions.invisible
-import ru.vladleesi.ultimatescanner.extensions.showToast
-import ru.vladleesi.ultimatescanner.extensions.showWithAnim
+import ru.vladleesi.ultimatescanner.extensions.* // ktlint-disable no-wildcard-imports
 import ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity
 import ru.vladleesi.ultimatescanner.ui.activity.MainActivity
 import ru.vladleesi.ultimatescanner.ui.analyzer.AnalyzeProcess
@@ -30,11 +28,13 @@ import ru.vladleesi.ultimatescanner.ui.camera.CameraHelper
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import java.lang.ref.WeakReference
-import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
+class CameraTabFragment :
+    TabFragment(R.layout.fragment_camera),
+    AnalyzeProcess,
+    CameraBindingHolder {
 
     private lateinit var binding: FragmentCameraBinding
 
@@ -47,6 +47,8 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
     private var isDetectRequired: Boolean = false
     private val barcodeMap: HashMap<String, String> = hashMapOf()
 
+    private val fabCapture: FloatingActionButton? by lazy(::buildFabCapture)
+
     private val cameraHelper by lazy {
         CameraHelper(
             WeakReference(context),
@@ -57,28 +59,35 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
         )
     }
 
-    private val defaultPreferences: SharedPreferences by lazy {
-        getDefaultSharedPreferences(context)
-    }
+    private val defaultPreferences: SharedPreferences by lazy { getDefaultSharedPreferences(context) }
 
     override val pageTitleId: Int
         get() = R.string.page_title_camera
 
+    private val mCameraInitLiveData = MutableLiveData<Boolean>()
+
     private val permissionResult =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isSuccess ->
-            if (isSuccess) {
-                cameraHelper.startCamera()
-                binding.fabCapture.showWithAnim()
-            } else {
+            if (!isSuccess) {
                 showToast("Permissions not granted by user")
             }
+            setCameraInit(isSuccess)
         }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_camera, container, false)
+    fun setCameraDetectSettings(isRequired: Boolean) {
+        isDetectRequired = isRequired
+    }
+
+    private fun setCameraInit(isInitNeed: Boolean) {
+        mCameraInitLiveData.value = isInitNeed
+    }
+
+    private fun buildFabCapture(): FloatingActionButton? =
+        if (arguments?.getBoolean(AUTO_DETECT_FRAGMENT, false) == true) {
+            null
+        } else {
+            binding.fabCapture
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -88,9 +97,18 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
 
         clearCacheDirectory()
 
-        permissionResult.launch(Manifest.permission.CAMERA)
+        fabCapture?.setOnClickListener { cameraHelper.takePhoto() }
 
-        binding.fabCapture.setOnClickListener { cameraHelper.takePhoto() }
+        requireContext().requestPermissionIfNeed(permissionResult, Manifest.permission.CAMERA) {
+            setCameraInit(true)
+        }
+
+        mCameraInitLiveData.observe(viewLifecycleOwner) { isCameraInitNeed ->
+            if (isCameraInitNeed) {
+                cameraHelper.startCamera()
+                fabCapture?.showWithAnim()
+            }
+        }
     }
 
     private fun clearCacheDirectory() {
@@ -109,7 +127,8 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
     override fun onStop() {
         super.onStop()
         isDetectEnabled = false
-        binding.fabCapture.invisible()
+        fabCapture?.invisible()
+        cameraHelper
     }
 
     override fun processResult(
@@ -135,7 +154,7 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
         if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
             isDetectEnabled = false
             cameraHelper.takePhoto()
-            parentActivity?.soundMaker?.playSound()
+            parentActivity?.playSound()
         }
     }
 
@@ -218,16 +237,25 @@ class CameraTabFragment : TabFragment(), AnalyzeProcess, CameraBindingHolder {
     override fun getFlashlightView(): ImageView = binding.ivFlashlight
 
     override fun flashlightOn() {
-        binding.ivFlashlight.setImageDrawable(activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_on_24))
+        binding.ivFlashlight.setImageDrawable(
+            activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_on_24)
+        )
     }
 
     override fun flashlightOff() {
-        binding.ivFlashlight.setImageDrawable(activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_off_24))
+        binding.ivFlashlight.setImageDrawable(
+            activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_off_24)
+        )
     }
 
     companion object {
         const val TAG = "CameraFragment"
 
-        fun newInstance() = CameraTabFragment().apply { arguments = Bundle() }
+        fun newInstance(autoDetect: Boolean) =
+            CameraTabFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(AUTO_DETECT_FRAGMENT, autoDetect)
+                }
+            }
     }
 }

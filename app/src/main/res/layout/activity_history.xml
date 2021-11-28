@@ -26,6 +26,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/margin_16"
         android:layout_marginBottom="@dimen/margin_16"
+        android:contentDescription="@string/text_description"
         android:src="@drawable/ic_baseline_delete_forever_24"
         app:backgroundTint="@color/yellow"
         app:tint="@color/black" />
