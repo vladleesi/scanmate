@@ -14,7 +14,11 @@ import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraTabFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), ResourceHolder, SettingsManager {
+class MainActivity :
+    AppCompatActivity(),
+    ResourceHolder,
+    SettingsManager,
+    VoiceMaker.OnInitListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -24,7 +28,8 @@ class MainActivity : AppCompatActivity(), ResourceHolder, SettingsManager {
     @Inject
     lateinit var voiceMaker: VoiceMaker
 
-    private val soundMaker = SoundMaker()
+    @Inject
+    lateinit var soundMaker: SoundMaker
 
     //    private val tabAdapter by lazy { InfinityMainTabAdapter(supportFragmentManager, this) }
     private val tabAdapter by lazy { MainTabAdapter(supportFragmentManager, this) }
@@ -33,6 +38,8 @@ class MainActivity : AppCompatActivity(), ResourceHolder, SettingsManager {
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
+
+        voiceMaker.setOnInitListener(this)
 
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, Bundle())
 
@@ -66,6 +73,13 @@ class MainActivity : AppCompatActivity(), ResourceHolder, SettingsManager {
     override fun onSoundChanged(isSound: Boolean) {
         soundMaker.setEnable(isSound)
         voiceMaker.setEnable(isSound)
+    }
+
+    override fun onInit(isSuccess: Boolean) {
+        if (isSuccess) {
+            // Voice first fragment
+            tabAdapter.getPageTitle(0).toString().let { voiceMaker.voice(it) }
+        }
     }
 
     fun playSound() = soundMaker.playSound()

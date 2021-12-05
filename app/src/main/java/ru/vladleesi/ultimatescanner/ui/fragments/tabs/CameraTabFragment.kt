@@ -117,9 +117,11 @@ class CameraTabFragment :
 
     override fun onStart() {
         super.onStart()
-        isDetectRequired = defaultPreferences.getBoolean(
-            getString(R.string.settings_auto_detect),
-            false
+        setCameraDetectSettings(
+            defaultPreferences.getBoolean(
+                getString(R.string.settings_auto_detect),
+                false
+            )
         )
         isDetectEnabled = true
     }

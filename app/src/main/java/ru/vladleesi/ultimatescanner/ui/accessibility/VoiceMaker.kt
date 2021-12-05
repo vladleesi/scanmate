@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
+import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.ui.activity.Speecher
 import java.lang.ref.WeakReference
 import java.util.*
@@ -15,14 +17,27 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
 
     private var isEnable = false
 
+    private var mOnInitListener: OnInitListener? = null
+
     private val ttsParams by lazy {
         Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
         }
     }
 
+    init {
+        getDefaultSharedPreferences(weakContext.get())?.let { prefs ->
+            val prefsKey = weakContext.get()?.getString(R.string.settings_sound_maker)
+            setEnable(prefs.getBoolean(prefsKey, false))
+        }
+    }
+
     fun setEnable(isEnable: Boolean) {
         this.isEnable = isEnable
+    }
+
+    fun setOnInitListener(listener: OnInitListener) {
+        mOnInitListener = listener
     }
 
     override fun voice(text: String?) {
@@ -54,6 +69,11 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
         } else if (status == TextToSpeech.ERROR) {
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
+        mOnInitListener?.onInit(isInitSuccess)
+    }
+
+    interface OnInitListener {
+        fun onInit(isSuccess: Boolean)
     }
 
     companion object {

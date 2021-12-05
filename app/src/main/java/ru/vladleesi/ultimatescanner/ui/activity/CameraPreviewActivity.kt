@@ -13,6 +13,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ml.vision.FirebaseVision
@@ -66,13 +67,12 @@ class CameraPreviewActivity : AppCompatActivity() {
     private val barcodeMap: HashMap<String, String> = hashMapOf()
 
     private val defaultPreferences: SharedPreferences by lazy {
-        androidx.preference.PreferenceManager.getDefaultSharedPreferences(
-            baseContext
-        )
+        getDefaultSharedPreferences(baseContext)
     }
     private var isDetectRequired: Boolean = false
 
-    private val soundMaker = SoundMaker()
+    @Inject
+    lateinit var soundMaker: SoundMaker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +102,13 @@ class CameraPreviewActivity : AppCompatActivity() {
             false
         )
         isDetectEnabled = true
+
+        soundMaker.setEnable(
+            defaultPreferences.getBoolean(
+                getString(R.string.settings_sound_maker),
+                false
+            )
+        )
     }
 
     override fun onStop() {

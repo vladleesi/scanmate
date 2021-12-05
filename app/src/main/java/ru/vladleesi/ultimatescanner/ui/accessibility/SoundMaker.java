@@ -1,11 +1,18 @@
 package ru.vladleesi.ultimatescanner.ui.accessibility;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
+
+import ru.vladleesi.ultimatescanner.R;
 
 
 public class SoundMaker {
@@ -17,7 +24,13 @@ public class SoundMaker {
     private final double[] sample = new double[numSamples];
     private final byte[] generatedSnd = new byte[2 * numSamples];
 
-    private boolean isEnable = false;
+    private boolean isEnable;
+
+    public SoundMaker(@NonNull Context context) {
+        SharedPreferences defaultPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefsKey = context.getString(R.string.settings_sound_maker);
+        isEnable = defaultPreferences.getBoolean(prefsKey, false);
+    }
 
     public void setEnable(boolean isEnable) {
         this.isEnable = isEnable;
