@@ -61,9 +61,6 @@ class CameraTabFragment :
 
     private val defaultPreferences: SharedPreferences by lazy { getDefaultSharedPreferences(context) }
 
-    override val pageTitleId: Int
-        get() = R.string.page_title_camera
-
     private val mCameraInitLiveData = MutableLiveData<Boolean>()
 
     private val permissionResult =

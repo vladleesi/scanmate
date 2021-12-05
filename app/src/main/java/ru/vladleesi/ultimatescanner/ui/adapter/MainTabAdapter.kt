@@ -7,6 +7,7 @@ import ru.vladleesi.ultimatescanner.ui.activity.ResourceHolder
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraTabFragment
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.HistoryTabFragment
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.SettingsTabFragment
+import ru.vladleesi.ultimatescanner.ui.fragments.tabs.TabFragments
 
 class MainTabAdapter(fm: FragmentManager, private val resourceHolder: ResourceHolder) :
     FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
@@ -22,5 +23,5 @@ class MainTabAdapter(fm: FragmentManager, private val resourceHolder: ResourceHo
     override fun getItem(position: Int): Fragment = fragments[position]
 
     override fun getPageTitle(position: Int): CharSequence =
-        resourceHolder.getStringRes(fragments[position].pageTitleId)
+        resourceHolder.getStringRes(TabFragments.values()[position].titleResId)
 }

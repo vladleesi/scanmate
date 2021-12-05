@@ -3,13 +3,14 @@ package ru.vladleesi.ultimatescanner.ui.activity
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import ru.vladleesi.ultimatescanner.databinding.ActivityMainBinding
 import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
 import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
 import ru.vladleesi.ultimatescanner.ui.accessibility.VoiceMaker
-import ru.vladleesi.ultimatescanner.ui.adapter.MainTabAdapter
+import ru.vladleesi.ultimatescanner.ui.adapter.InfinityMainTabAdapter
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraTabFragment
 import javax.inject.Inject
 
@@ -31,8 +32,7 @@ class MainActivity :
     @Inject
     lateinit var soundMaker: SoundMaker
 
-    //    private val tabAdapter by lazy { InfinityMainTabAdapter(supportFragmentManager, this) }
-    private val tabAdapter by lazy { MainTabAdapter(supportFragmentManager, this) }
+    private val tabAdapter by lazy { InfinityMainTabAdapter(supportFragmentManager, this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,13 +44,17 @@ class MainActivity :
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, Bundle())
 
         binding.fragmentContainer.adapter = tabAdapter
-        binding.tabs.setupWithViewPager(binding.fragmentContainer)
-//        binding.fragmentContainer.currentItem = tabAdapter.middle + 1
+        binding.fragmentContainer.currentItem = tabAdapter.middle
 
-//        for (index in 0 until tabAdapter.getRealCount()) {
-//            binding.tabs.addTab(TabLayout.Tab().apply { text = tabAdapter.getPageTitle(index) })
-//        }
-//        binding.tabs.getTabAt(1)?.select()
+        repeat(tabAdapter.getRealCount()) { index ->
+            with(binding.tabs) {
+                addTab(
+                    newTab().apply {
+                        text = tabAdapter.getPageTitle(index)
+                    }
+                )
+            }
+        }
 
         binding.fragmentContainer.addOnPageSelected(infinityScroll = false) { position ->
             val fragmentTitle = tabAdapter.getPageTitle(position = position)
@@ -59,7 +63,7 @@ class MainActivity :
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-//            binding.tabs.getTabAt(tabAdapter.getRealPosition(position))?.select()
+            binding.tabs.getTabAt(tabAdapter.getRealPosition(position))?.select()
         }
     }
 
@@ -78,7 +82,7 @@ class MainActivity :
     override fun onInit(isSuccess: Boolean) {
         if (isSuccess) {
             // Voice first fragment
-            tabAdapter.getPageTitle(0).toString().let { voiceMaker.voice(it) }
+            tabAdapter.getPageTitle(0).toString().let { title -> voiceMaker.voice(title) }
         }
     }
 

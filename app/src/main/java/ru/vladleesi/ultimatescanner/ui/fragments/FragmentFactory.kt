@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentFactory
 
 object FragmentFactory {
+
     inline fun <reified T : BaseFragment> create(
-        clazz: Class<T>,
+        clazz: Class<out T>,
         fillBundle: (Bundle) -> Unit
     ): T? {
         val classLoader = clazz.classLoader ?: return null

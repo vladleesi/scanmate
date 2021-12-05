@@ -16,9 +16,6 @@ import java.lang.ref.WeakReference
 
 class HistoryTabFragment : TabFragment(R.layout.fragment_history) {
 
-    override val pageTitleId: Int
-        get() = R.string.page_title_history
-
     private lateinit var binding: ActivityHistoryBinding
     private val repo by lazy { AnalyzeRepo(WeakReference(context)) }
     private val adapter by lazy { HistoryListAdapter() }

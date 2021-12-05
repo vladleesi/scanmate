@@ -15,9 +15,6 @@ class SettingsTabFragment : TabFragment(R.layout.activity_settings) {
 
     private val mSettingsManager by lazy { parent<MainActivity>() as SettingsManager }
 
-    override val pageTitleId: Int
-        get() = R.string.page_title_settings
-
     fun getSettingsManager() = mSettingsManager
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
