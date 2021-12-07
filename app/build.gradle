@@ -16,8 +16,8 @@ android {
         applicationId 'ru.vladleesi.ultimatescanner'
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 3
-        versionName "0.5." + versionCode
+        versionCode 4
+        versionName "0.5." + versionCode + "-alpha01"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

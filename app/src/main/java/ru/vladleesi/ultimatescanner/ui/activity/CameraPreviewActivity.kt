@@ -97,10 +97,7 @@ class CameraPreviewActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        isDetectRequired = defaultPreferences.getBoolean(
-            getString(R.string.settings_auto_detect),
-            false
-        )
+        isDetectRequired = true
         isDetectEnabled = true
 
         soundMaker.setEnable(

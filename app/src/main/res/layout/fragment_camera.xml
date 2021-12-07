@@ -4,6 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/camera_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
@@ -31,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/margin_128"
+        android:layout_marginBottom="@dimen/margin_192"
         android:paddingStart="@dimen/margin_4"
         android:paddingTop="@dimen/margin_2"
         android:paddingEnd="@dimen/margin_4"
@@ -50,6 +55,7 @@
         android:layout_marginTop="@dimen/margin_32"
         android:layout_marginEnd="@dimen/margin_40"
         android:background="@drawable/background_image_view_button"
+        android:contentDescription="@string/text_description"
         android:padding="@dimen/margin_12"
         android:src="@drawable/ic_baseline_flashlight_on_24"
         app:tint="@color/white" />
@@ -65,5 +71,21 @@
         android:visibility="invisible"
         app:backgroundTint="@color/blue"
         app:tint="@color/black" />
+
+    <ru.vladleesi.ultimatescanner.ui.view.LockableTabLayout
+        android:id="@+id/camera_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_8"
+        android:background="@android:color/transparent"
+        app:tabBackground="@drawable/tab_background_corner_24"
+        app:tabGravity="center"
+        app:tabIndicator="@null"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="@color/black"
+        app:tabTextAppearance="@style/TabTextAppearance"
+        app:tabTextColor="@color/white" />
 
 </RelativeLayout>

@@ -17,8 +17,6 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
 
     private var isEnable = false
 
-    private var mOnInitListener: OnInitListener? = null
-
     private val ttsParams by lazy {
         Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
@@ -34,10 +32,6 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
 
     fun setEnable(isEnable: Boolean) {
         this.isEnable = isEnable
-    }
-
-    fun setOnInitListener(listener: OnInitListener) {
-        mOnInitListener = listener
     }
 
     override fun voice(text: String?) {
@@ -69,11 +63,6 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
         } else if (status == TextToSpeech.ERROR) {
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
-        mOnInitListener?.onInit(isInitSuccess)
-    }
-
-    interface OnInitListener {
-        fun onInit(isSuccess: Boolean)
     }
 
     companion object {

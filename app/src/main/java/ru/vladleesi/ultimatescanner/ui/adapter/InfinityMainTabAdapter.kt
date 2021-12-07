@@ -5,17 +5,16 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import ru.vladleesi.ultimatescanner.ui.activity.ResourceHolder
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.TabFragmentFactory
-import ru.vladleesi.ultimatescanner.ui.fragments.tabs.TabFragments
 
 class InfinityMainTabAdapter(fm: FragmentManager, private val resourceHolder: ResourceHolder) :
     FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    private val realCount: Int = TabFragments.values().size
+    private val realCount: Int = TabFragmentFactory.getSize()
 
     val middle: Int
         get() {
-            return if (TabFragments.values().size >= MIN_COUNT_FOR_INFINITY) {
-                TabFragments.values().size * LOOP_COUNT / MULTIPLICITY
+            return if (realCount >= MIN_COUNT_FOR_INFINITY) {
+                realCount * LOOP_COUNT / MULTIPLICITY
             } else {
                 DEFAULT_MIDDLE
             }
@@ -24,7 +23,7 @@ class InfinityMainTabAdapter(fm: FragmentManager, private val resourceHolder: Re
     fun getRealCount(): Int = realCount
 
     override fun getCount(): Int {
-        return if (TabFragments.values().size >= MIN_COUNT_FOR_INFINITY) {
+        return if (realCount >= MIN_COUNT_FOR_INFINITY) {
             realCount * LOOP_COUNT
         } else {
             realCount

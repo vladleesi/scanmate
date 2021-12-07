@@ -12,7 +12,9 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.updateLayoutParams
 import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 import ru.vladleesi.ultimatescanner.R
 
 fun View.visible() = setVisibilityInner(View.VISIBLE)
@@ -115,6 +117,21 @@ fun ViewPager.addOnPageSelected(infinityScroll: Boolean, action: (position: Int)
             }
         }
     })
+}
+
+fun TabLayout.setMargin(start: Int?, end: Int?) {
+    getChildAt(0)
+        .let { it as? ViewGroup }
+        ?.let { viewGroup ->
+            repeat(viewGroup.childCount) { index ->
+                viewGroup.getChildAt(index).updateLayoutParams {
+                    if (this is ViewGroup.MarginLayoutParams) {
+                        start?.let { marginStart = start }
+                        end?.let { marginStart = end }
+                    }
+                }
+            }
+        }
 }
 
 const val TAG = "ViewExtensions"

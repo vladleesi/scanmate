@@ -2,7 +2,6 @@ package ru.vladleesi.ultimatescanner.ui.fragments.tabs
 
 import android.Manifest
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,16 +10,18 @@ import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import ru.vladleesi.ultimatescanner.Constants
-import ru.vladleesi.ultimatescanner.Constants.AUTO_DETECT_FRAGMENT
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.FragmentCameraBinding
-import ru.vladleesi.ultimatescanner.extensions.* // ktlint-disable no-wildcard-imports
+import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
+import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
+import ru.vladleesi.ultimatescanner.extensions.requestPermissionIfNeed
+import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity
 import ru.vladleesi.ultimatescanner.ui.activity.MainActivity
+import ru.vladleesi.ultimatescanner.ui.adapter.CameraTabAdapter
 import ru.vladleesi.ultimatescanner.ui.analyzer.AnalyzeProcess
 import ru.vladleesi.ultimatescanner.ui.analyzer.CameraPreviewAnalyzer
 import ru.vladleesi.ultimatescanner.ui.camera.CameraBindingHolder
@@ -44,10 +45,11 @@ class CameraTabFragment :
 
     private lateinit var cameraExecutor: ExecutorService
     private var isDetectEnabled: Boolean = true
-    private var isDetectRequired: Boolean = false
     private val barcodeMap: HashMap<String, String> = hashMapOf()
 
-    private val fabCapture: FloatingActionButton? by lazy(::buildFabCapture)
+    private val tabAdapter by lazy { CameraTabAdapter(childFragmentManager) }
+
+    private val fabCapture: FloatingActionButton by lazy { binding.fabCapture }
 
     private val cameraHelper by lazy {
         CameraHelper(
@@ -59,8 +61,6 @@ class CameraTabFragment :
         )
     }
 
-    private val defaultPreferences: SharedPreferences by lazy { getDefaultSharedPreferences(context) }
-
     private val mCameraInitLiveData = MutableLiveData<Boolean>()
 
     private val permissionResult =
@@ -71,20 +71,9 @@ class CameraTabFragment :
             setCameraInit(isSuccess)
         }
 
-    fun setCameraDetectSettings(isRequired: Boolean) {
-        isDetectRequired = isRequired
-    }
-
     private fun setCameraInit(isInitNeed: Boolean) {
         mCameraInitLiveData.value = isInitNeed
     }
-
-    private fun buildFabCapture(): FloatingActionButton? =
-        if (arguments?.getBoolean(AUTO_DETECT_FRAGMENT, false) == true) {
-            null
-        } else {
-            binding.fabCapture
-        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,7 +83,7 @@ class CameraTabFragment :
 
         clearCacheDirectory()
 
-        fabCapture?.setOnClickListener { cameraHelper.takePhoto() }
+        fabCapture.setOnClickListener { cameraHelper.takePhoto() }
 
         requireContext().requestPermissionIfNeed(permissionResult, Manifest.permission.CAMERA) {
             setCameraInit(true)
@@ -103,9 +92,34 @@ class CameraTabFragment :
         mCameraInitLiveData.observe(viewLifecycleOwner) { isCameraInitNeed ->
             if (isCameraInitNeed) {
                 cameraHelper.startCamera()
-                fabCapture?.showWithAnim()
             }
         }
+        binding.cameraPager.adapter = tabAdapter
+        binding.cameraTabs.setupWithViewPager(binding.cameraPager)
+
+        binding.cameraPager.addOnPageSelected(infinityScroll = false, ::selectMode)
+
+        when (CameraModeHolder.cameraMode) {
+            CameraMode.AUTO_MODE, CameraMode.UNDEFINED_MODE -> binding.cameraPager.currentItem = 0
+            CameraMode.MANUAL_MODE -> binding.cameraPager.currentItem = 1
+        }
+    }
+
+    private fun selectMode(position: Int) {
+        when (position) {
+            0 -> {
+                isDetectEnabled = true
+                fabCapture.hide()
+                CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
+            }
+            1 -> {
+                isDetectEnabled = false
+                fabCapture.show()
+                CameraModeHolder.cameraMode = CameraMode.MANUAL_MODE
+            }
+        }
+        if (CameraModeHolder.currentFragment == TabFragments.CAMERA)
+            VoiceEventBus.toVoice(tabAdapter.getPageTitle(position).toString())
     }
 
     private fun clearCacheDirectory() {
@@ -114,19 +128,12 @@ class CameraTabFragment :
 
     override fun onStart() {
         super.onStart()
-        setCameraDetectSettings(
-            defaultPreferences.getBoolean(
-                getString(R.string.settings_auto_detect),
-                false
-            )
-        )
         isDetectEnabled = true
     }
 
     override fun onStop() {
         super.onStop()
         isDetectEnabled = false
-        fabCapture?.invisible()
         cameraHelper
     }
 
@@ -150,7 +157,7 @@ class CameraTabFragment :
             barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
         }
 
-        if (barcodeResults.isNotEmpty() && isDetectEnabled && isDetectRequired) {
+        if (barcodeResults.isNotEmpty() && isDetectEnabled) {
             isDetectEnabled = false
             cameraHelper.takePhoto()
             parentActivity?.playSound()
@@ -250,11 +257,6 @@ class CameraTabFragment :
     companion object {
         const val TAG = "CameraFragment"
 
-        fun newInstance(autoDetect: Boolean) =
-            CameraTabFragment().apply {
-                arguments = Bundle().apply {
-                    putBoolean(AUTO_DETECT_FRAGMENT, autoDetect)
-                }
-            }
+        fun newInstance() = CameraTabFragment()
     }
 }

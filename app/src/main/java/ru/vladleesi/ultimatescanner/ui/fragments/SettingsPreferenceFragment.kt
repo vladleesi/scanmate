@@ -56,14 +56,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             }
 
         findPreference<SwitchPreference>(
-            context?.getString(R.string.settings_auto_detect) ?: return
-        )?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { _, newValue ->
-                settingsManager?.onAutodetectChanged(newValue == true)
-                true
-            }
-
-        findPreference<SwitchPreference>(
             context?.getString(R.string.settings_sound_maker) ?: return
         )?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->

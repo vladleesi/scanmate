@@ -15,13 +15,13 @@
     <FrameLayout
         android:id="@+id/tabs_container"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="48dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.google.android.material.tabs.TabLayout
+        <ru.vladleesi.ultimatescanner.ui.view.LockableTabLayout
             android:id="@+id/tabs"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="32dp"
             android:layout_gravity="center"
             android:background="@color/black"
             app:tabBackground="@drawable/tab_background_corner_24"

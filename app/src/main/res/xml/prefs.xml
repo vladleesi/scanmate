@@ -23,12 +23,6 @@
 
     <SwitchPreference
         android:defaultValue="true"
-        android:icon="@drawable/ic_baseline_motion_photos_auto_24"
-        android:key="@string/settings_auto_detect"
-        android:title="Автопоиск" />
-
-    <SwitchPreference
-        android:defaultValue="true"
         android:icon="@drawable/ic_baseline_hearing_24"
         android:key="@string/settings_sound_maker"
         android:title="Звуковое оповещение" />
