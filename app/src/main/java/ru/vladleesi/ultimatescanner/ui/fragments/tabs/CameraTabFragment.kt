@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -120,6 +121,11 @@ class CameraTabFragment :
         }
         if (CameraModeHolder.currentFragment == TabFragments.CAMERA)
             VoiceEventBus.toVoice(tabAdapter.getPageTitle(position).toString())
+
+        binding.root.performHapticFeedback(
+            HapticFeedbackConstants.VIRTUAL_KEY,
+            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+        )
     }
 
     private fun clearCacheDirectory() {
