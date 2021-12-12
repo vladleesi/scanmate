@@ -111,7 +111,7 @@ class MainActivity :
         }
 
         CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
-        VoiceEventBus.toVoice("Авто-детект")
+        VoiceEventBus.toVoice(getString(R.string.page_title_auto_detect))
 
         GlobalScope.launch(coroutineExceptionHandler) {
             VoiceEventBus.flow.collect {
