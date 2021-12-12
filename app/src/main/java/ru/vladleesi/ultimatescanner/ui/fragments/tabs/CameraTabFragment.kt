@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
-import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.view.PreviewView
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
@@ -17,7 +15,6 @@ import ru.vladleesi.ultimatescanner.Constants
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.FragmentCameraBinding
 import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
-import ru.vladleesi.ultimatescanner.extensions.getDrawableCompat
 import ru.vladleesi.ultimatescanner.extensions.requestPermissionIfNeed
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity
@@ -25,8 +22,8 @@ import ru.vladleesi.ultimatescanner.ui.activity.MainActivity
 import ru.vladleesi.ultimatescanner.ui.adapter.CameraTabAdapter
 import ru.vladleesi.ultimatescanner.ui.analyzer.AnalyzeProcess
 import ru.vladleesi.ultimatescanner.ui.analyzer.CameraPreviewAnalyzer
-import ru.vladleesi.ultimatescanner.ui.camera.CameraBindingHolder
 import ru.vladleesi.ultimatescanner.ui.camera.CameraHelper
+import ru.vladleesi.ultimatescanner.ui.camera.OnDetectListener
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 import ru.vladleesi.ultimatescanner.ui.model.scan.ScanResult
 import java.lang.ref.WeakReference
@@ -36,7 +33,7 @@ import java.util.concurrent.Executors
 class CameraTabFragment :
     TabFragment(R.layout.fragment_camera),
     AnalyzeProcess,
-    CameraBindingHolder {
+    OnDetectListener {
 
     private lateinit var binding: FragmentCameraBinding
 
@@ -56,6 +53,7 @@ class CameraTabFragment :
         CameraHelper(
             WeakReference(context),
             this,
+            parentActivity?.cameraProviderFuture,
             CameraPreviewAnalyzer(WeakReference(context), this),
             this,
             mOutputDirectory
@@ -63,6 +61,7 @@ class CameraTabFragment :
     }
 
     private val mCameraInitLiveData = MutableLiveData<Boolean>()
+    private val mCameraStartedLiveData = MutableLiveData<Boolean>()
 
     private val permissionResult =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isSuccess ->
@@ -92,7 +91,12 @@ class CameraTabFragment :
 
         mCameraInitLiveData.observe(viewLifecycleOwner) { isCameraInitNeed ->
             if (isCameraInitNeed) {
-                cameraHelper.startCamera()
+                cameraHelper.startCamera(binding.viewFinder) {
+                    mCameraStartedLiveData.observe(viewLifecycleOwner) { onResume ->
+                        if (onResume) cameraHelper.bind()
+                        else cameraHelper.unbindAll()
+                    }
+                }
             }
         }
         binding.cameraPager.adapter = tabAdapter
@@ -104,6 +108,16 @@ class CameraTabFragment :
             CameraMode.AUTO_MODE, CameraMode.UNDEFINED_MODE -> binding.cameraPager.currentItem = 0
             CameraMode.MANUAL_MODE -> binding.cameraPager.currentItem = 1
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mCameraStartedLiveData.value = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mCameraStartedLiveData.value = false
     }
 
     private fun selectMode(position: Int) {
@@ -242,22 +256,6 @@ class CameraTabFragment :
 
     override fun processFailure(e: Exception) {
         showToast(e.message)
-    }
-
-    override fun getCameraView(): PreviewView = binding.viewFinder
-
-    override fun getFlashlightView(): ImageView = binding.ivFlashlight
-
-    override fun flashlightOn() {
-        binding.ivFlashlight.setImageDrawable(
-            activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_on_24)
-        )
-    }
-
-    override fun flashlightOff() {
-        binding.ivFlashlight.setImageDrawable(
-            activity?.getDrawableCompat(R.drawable.ic_baseline_flashlight_off_24)
-        )
     }
 
     companion object {

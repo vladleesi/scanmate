@@ -7,8 +7,10 @@ import android.util.Log
 import android.util.Size
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.ListenableFuture
 import ru.vladleesi.ultimatescanner.Constants
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.analyzer.CameraPreviewAnalyzer
@@ -23,40 +25,46 @@ import java.util.concurrent.Executors
 class CameraHelper(
     private val weakContext: WeakReference<Context>,
     private val lifecycleOwner: LifecycleOwner,
+    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider>?,
     private val cameraPreviewAnalyzer: CameraPreviewAnalyzer,
-    private val cameraBindingHolder: CameraBindingHolder,
+    private val onDetectListener: OnDetectListener,
     private val outputDirectory: File?
 ) {
 
     private val cameraExecutor = Executors.newSingleThreadExecutor()
     private val mainExecutor = ContextCompat.getMainExecutor(weakContext.get())
-    private val cameraProviderFuture =
-        weakContext.get()?.let { ProcessCameraProvider.getInstance(it) }
+
+    // Used to bind the lifecycle of cameras to the lifecycle owner
+    private val cameraProvider: ProcessCameraProvider? by lazy { cameraProviderFuture?.get() }
+    private var camera: Camera? = null
+    private lateinit var imageAnalyzer: ImageAnalysis
+    private lateinit var preview: Preview
+
+    // Select back camera as a default
+    private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
     private lateinit var imageCapture: ImageCapture
     private lateinit var screenResolution: Size
 
-    fun startCamera() {
+    fun startCamera(previewView: PreviewView, callback: () -> Unit) {
         cameraProviderFuture?.addListener({
-            // Used to bind the lifecycle of cameras to the lifecycle owner
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             // Get screen metrics used to setup camera for full screen resolution
             val metrics = DisplayMetrics().also {
-                cameraBindingHolder.getCameraView().display.getRealMetrics(it)
+                previewView.display.getRealMetrics(it)
             }
             screenResolution = Size(metrics.widthPixels, metrics.heightPixels)
 //            val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-            val targetRotation = cameraBindingHolder.getCameraView().display.rotation
+            val targetRotation = previewView.display.rotation
 
             // Preview
-            val preview = Preview.Builder()
+            preview = Preview.Builder()
 //                .setTargetAspectRatio(screenAspectRatio)
                 .setTargetResolution(screenResolution)
                 .setTargetRotation(targetRotation)
                 .build()
                 .also {
-                    it.setSurfaceProvider(cameraBindingHolder.getCameraView().surfaceProvider)
+                    it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
             imageCapture = ImageCapture.Builder()
@@ -65,10 +73,7 @@ class CameraHelper(
                 .setTargetRotation(targetRotation)
                 .build()
 
-            // Select back camera as a default
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            val imageAnalyzer = ImageAnalysis.Builder()
+            imageAnalyzer = ImageAnalysis.Builder()
 //                .setTargetAspectRatio(screenAspectRatio)
                 .setTargetResolution(screenResolution)
                 .setTargetRotation(targetRotation)
@@ -79,27 +84,8 @@ class CameraHelper(
                 }
 
             try {
-                // Unbind use cases before rebinding
-                cameraProvider.unbindAll()
-
-                // Bind use cases to camera
-                val camera = cameraProvider.bindToLifecycle(
-                    lifecycleOwner, cameraSelector, preview, imageCapture, imageAnalyzer
-                )
-
-                if (camera.cameraInfo.hasFlashUnit()) {
-                    var isFlashlightOn = false
-                    cameraBindingHolder.getFlashlightView().setOnClickListener {
-                        isFlashlightOn = !isFlashlightOn
-                        camera.cameraControl.enableTorch(isFlashlightOn)
-                        if (isFlashlightOn) {
-                            cameraBindingHolder.flashlightOff()
-                        } else {
-                            cameraBindingHolder.flashlightOn()
-                        }
-                    }
-                }
-                val sensorRotationDegrees = camera.cameraInfo.sensorRotationDegrees
+                unbindAll()
+                callback()
             } catch (exc: Exception) {
                 Log.e(CameraTabFragment.TAG, "Use case binding failed", exc)
             }
@@ -145,9 +131,21 @@ class CameraHelper(
                             screenResolution.height
                         )
 
-                    cameraBindingHolder.onDetect(Uri.fromFile(compressed))
+                    onDetectListener.onDetect(Uri.fromFile(compressed))
                 }
             }
+        )
+    }
+
+    /** Unbind use cases before rebinding */
+    fun unbindAll() {
+        cameraProvider?.unbindAll()
+    }
+
+    /** Bind use cases to camera */
+    fun bind() {
+        camera = cameraProvider?.bindToLifecycle(
+            lifecycleOwner, cameraSelector, preview, imageCapture, imageAnalyzer
         )
     }
 }

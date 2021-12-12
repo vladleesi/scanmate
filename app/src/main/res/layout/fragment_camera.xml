@@ -46,26 +46,13 @@
         android:textColor="@color/white"
         android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/iv_flashlight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/v_scanner_area"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="@dimen/margin_32"
-        android:layout_marginEnd="@dimen/margin_40"
-        android:background="@drawable/background_image_view_button"
-        android:contentDescription="@string/text_description"
-        android:padding="@dimen/margin_12"
-        android:src="@drawable/ic_baseline_flashlight_on_24"
-        app:tint="@color/white" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/iv_flashlight"
-        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/margin_64"
         android:contentDescription="@string/text_description"
         android:src="@drawable/ic_baseline_image_search_24"
         android:visibility="invisible"

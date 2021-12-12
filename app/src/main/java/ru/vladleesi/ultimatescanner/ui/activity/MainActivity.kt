@@ -3,6 +3,7 @@ package ru.vladleesi.ultimatescanner.ui.activity
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -41,6 +42,8 @@ class MainActivity :
     lateinit var soundMaker: SoundMaker
 
     private val tabAdapter by lazy { InfinityMainTabAdapter(supportFragmentManager, this) }
+
+    val cameraProviderFuture by lazy { ProcessCameraProvider.getInstance(baseContext) }
 
     private val coroutineExceptionHandler by lazy {
         CoroutineExceptionHandler { _, throwable ->
