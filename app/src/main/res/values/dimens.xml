@@ -20,6 +20,7 @@
     <dimen name="corner_12">12dp</dimen>
     <dimen name="corner_24">24dp</dimen>
     <dimen name="corner_32">32dp</dimen>
+    <dimen name="corner_128">128dp</dimen>
 
     <dimen name="icon_button_size">16dp</dimen>
 

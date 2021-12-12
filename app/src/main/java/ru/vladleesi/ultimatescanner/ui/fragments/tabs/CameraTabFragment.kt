@@ -9,14 +9,11 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import ru.vladleesi.ultimatescanner.Constants
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.FragmentCameraBinding
-import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
-import ru.vladleesi.ultimatescanner.extensions.requestPermissionIfNeed
-import ru.vladleesi.ultimatescanner.extensions.showToast
+import ru.vladleesi.ultimatescanner.extensions.*
 import ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity
 import ru.vladleesi.ultimatescanner.ui.activity.MainActivity
 import ru.vladleesi.ultimatescanner.ui.adapter.CameraTabAdapter
@@ -46,8 +43,6 @@ class CameraTabFragment :
     private val barcodeMap: HashMap<String, String> = hashMapOf()
 
     private val tabAdapter by lazy { CameraTabAdapter(childFragmentManager) }
-
-    private val fabCapture: FloatingActionButton by lazy { binding.fabCapture }
 
     private val cameraHelper by lazy {
         CameraHelper(
@@ -83,7 +78,7 @@ class CameraTabFragment :
 
         clearCacheDirectory()
 
-        fabCapture.setOnClickListener { cameraHelper.takePhoto() }
+        binding.fabCapture.setOnClickListener { cameraHelper.takePhoto() }
 
         requireContext().requestPermissionIfNeed(permissionResult, Manifest.permission.CAMERA) {
             setCameraInit(true)
@@ -123,12 +118,14 @@ class CameraTabFragment :
         when (position) {
             0 -> {
                 isDetectEnabled = true
-                fabCapture.hide()
+                binding.fabCaptureContainer.invisible()
+                binding.fabCapture.hide()
                 CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
             }
             1 -> {
                 isDetectEnabled = false
-                fabCapture.show()
+                binding.fabCapture.show()
+                binding.fabCaptureContainer.visible()
                 CameraModeHolder.cameraMode = CameraMode.MANUAL_MODE
             }
         }

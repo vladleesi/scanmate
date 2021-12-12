@@ -46,18 +46,28 @@
         android:textColor="@color/white"
         android:textStyle="bold" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_capture"
+    <FrameLayout
+        android:id="@+id/fab_capture_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/margin_32"
-        android:contentDescription="@string/text_description"
-        android:src="@drawable/ic_baseline_image_search_24"
-        android:visibility="invisible"
-        app:backgroundTint="@color/white"
-        app:fabCustomSize="@dimen/margin_64"
-        app:tint="@color/black" />
+        android:background="@drawable/background_border_white"
+        android:visibility="invisible">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_4"
+            android:contentDescription="@string/text_description"
+            android:src="@drawable/ic_baseline_image_search_24"
+            android:visibility="invisible"
+            app:backgroundTint="@color/white"
+            app:fabCustomSize="@dimen/margin_64"
+            app:tint="@color/black" />
+
+    </FrameLayout>
 
 </RelativeLayout>
