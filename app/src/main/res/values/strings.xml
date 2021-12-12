@@ -14,6 +14,8 @@
     <string name="tv_buy">Купить</string>
 
     <string name="page_title_camera">Сканер</string>
+    <string name="page_title_auto_detect">Авто-детект</string>
+    <string name="page_title_manual">Ручной режим</string>
     <string name="page_title_settings">Настройки</string>
     <string name="page_title_history">История</string>
     <string name="page_title_unknown">Unknown</string>

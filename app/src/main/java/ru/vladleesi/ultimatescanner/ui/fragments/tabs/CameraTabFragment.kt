@@ -61,7 +61,7 @@ class CameraTabFragment :
     }
 
     private val mCameraInitLiveData = MutableLiveData<Boolean>()
-    private val mCameraStartedLiveData = MutableLiveData<Boolean>()
+    private val mStartedLiveData = MutableLiveData<Boolean>()
 
     private val permissionResult =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isSuccess ->
@@ -92,7 +92,7 @@ class CameraTabFragment :
         mCameraInitLiveData.observe(viewLifecycleOwner) { isCameraInitNeed ->
             if (isCameraInitNeed) {
                 cameraHelper.startCamera(binding.viewFinder) {
-                    mCameraStartedLiveData.observe(viewLifecycleOwner) { onResume ->
+                    mStartedLiveData.observe(viewLifecycleOwner) { onResume ->
                         if (onResume) cameraHelper.bind()
                         else cameraHelper.unbindAll()
                     }
@@ -100,7 +100,6 @@ class CameraTabFragment :
             }
         }
         binding.cameraPager.adapter = tabAdapter
-        binding.cameraTabs.setupWithViewPager(binding.cameraPager)
 
         binding.cameraPager.addOnPageSelected(infinityScroll = false, ::selectMode)
 
@@ -112,12 +111,12 @@ class CameraTabFragment :
 
     override fun onResume() {
         super.onResume()
-        mCameraStartedLiveData.value = true
+        mStartedLiveData.value = true
     }
 
     override fun onPause() {
         super.onPause()
-        mCameraStartedLiveData.value = false
+        mStartedLiveData.value = false
     }
 
     private fun selectMode(position: Int) {
@@ -139,6 +138,9 @@ class CameraTabFragment :
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
+        }
+        mStartedLiveData.observe(viewLifecycleOwner) { onResume ->
+            if (onResume) parentActivity?.selectTab(position, fromCamera = true)
         }
     }
 

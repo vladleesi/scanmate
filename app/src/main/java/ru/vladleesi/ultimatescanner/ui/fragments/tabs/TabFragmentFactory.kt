@@ -1,5 +1,6 @@
 package ru.vladleesi.ultimatescanner.ui.fragments.tabs
 
+import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 
 object TabFragmentFactory {
@@ -11,6 +12,14 @@ object TabFragmentFactory {
     }
 
     fun getTitle(position: Int) = TabFragments.values()[position].titleResId
+
+    fun getTabTitle(position: Int) = when (position) {
+        0 -> R.string.page_title_auto_detect
+        1 -> R.string.page_title_manual
+        2 -> R.string.page_title_history
+        3 -> R.string.page_title_settings
+        else -> R.string.page_title_unknown
+    }
 
     fun getSize() = TabFragments.values().size
 }

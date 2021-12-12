@@ -35,6 +35,7 @@ class InfinityMainTabAdapter(fm: FragmentManager, private val resourceHolder: Re
     override fun getItem(position: Int): Fragment =
         TabFragmentFactory.create(getRealPosition(position))
 
+    // TODO: Удалить и определять активный фоагмент по [CameraModeHolder.currentFragment]
     override fun getPageTitle(position: Int): CharSequence =
         resourceHolder.getStringRes(TabFragmentFactory.getTitle(getRealPosition(position)))
 

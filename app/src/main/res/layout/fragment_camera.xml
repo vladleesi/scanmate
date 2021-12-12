@@ -52,22 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/margin_64"
+        android:layout_marginBottom="@dimen/margin_32"
         android:contentDescription="@string/text_description"
         android:src="@drawable/ic_baseline_image_search_24"
         android:visibility="invisible"
         app:backgroundTint="@color/white"
+        app:fabCustomSize="@dimen/margin_64"
         app:tint="@color/black" />
-
-    <ru.vladleesi.ultimatescanner.ui.view.LockableTabLayout
-        android:id="@+id/camera_tabs"
-        style="@style/TabCornerStyle"
-        android:layout_width="match_parent"
-        android:layout_height="28dp"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_8"
-        app:tabGravity="center"
-        app:tabMode="scrollable" />
 
 </RelativeLayout>

@@ -12,16 +12,14 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.ActivityMainBinding
 import ru.vladleesi.ultimatescanner.extensions.addOnPageSelected
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
 import ru.vladleesi.ultimatescanner.ui.accessibility.VoiceMaker
 import ru.vladleesi.ultimatescanner.ui.adapter.InfinityMainTabAdapter
-import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraMode
-import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraModeHolder
-import ru.vladleesi.ultimatescanner.ui.fragments.tabs.TabFragments
-import ru.vladleesi.ultimatescanner.ui.fragments.tabs.VoiceEventBus
+import ru.vladleesi.ultimatescanner.ui.fragments.tabs.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -71,11 +69,11 @@ class MainActivity :
         binding.fragmentContainer.adapter = tabAdapter
         binding.fragmentContainer.currentItem = tabAdapter.middle
 
-        repeat(tabAdapter.getRealCount()) { index ->
+        repeat(tabAdapter.getRealCount() + 1) { index ->
             with(binding.tabs) {
                 addTab(
                     newTab().apply {
-                        text = tabAdapter.getPageTitle(index)
+                        text = getString(TabFragmentFactory.getTabTitle(index))
                     }
                 )
             }
@@ -97,8 +95,8 @@ class MainActivity :
                 getString(TabFragments.CAMERA.titleResId) -> {
                     CameraModeHolder.currentFragment = TabFragments.CAMERA
                     val title = when (CameraModeHolder.cameraMode) {
-                        CameraMode.AUTO_MODE -> "Авто-детект"
-                        CameraMode.MANUAL_MODE -> "Ручной режим"
+                        CameraMode.AUTO_MODE -> getString(R.string.page_title_auto_detect)
+                        CameraMode.MANUAL_MODE -> getString(R.string.page_title_manual)
                         CameraMode.UNDEFINED_MODE -> fragmentTitle.toString()
                     }
                     VoiceEventBus.toVoice(title)
@@ -109,7 +107,7 @@ class MainActivity :
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            binding.tabs.getTabAt(tabAdapter.getRealPosition(position))?.select()
+            selectTab(tabAdapter.getRealPosition(position))
         }
 
         CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
@@ -120,6 +118,18 @@ class MainActivity :
                 voiceMaker.voice(it)
             }
         }
+    }
+
+    fun selectTab(tabPosition: Int, fromCamera: Boolean = false) {
+        val realTabPosition = when (tabPosition) {
+            0 -> when (CameraModeHolder.cameraMode) {
+                CameraMode.AUTO_MODE -> 0
+                CameraMode.MANUAL_MODE -> 1
+                CameraMode.UNDEFINED_MODE -> tabPosition
+            }
+            else -> tabPosition + 1
+        }
+        binding.tabs.getTabAt(if (fromCamera) tabPosition else realTabPosition)?.select()
     }
 
     override fun getStringRes(stringResId: Int): String = getString(stringResId)
