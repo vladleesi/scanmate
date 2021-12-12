@@ -8,7 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
-import ru.vladleesi.ultimatescanner.databinding.ActivityHistoryBinding
+import ru.vladleesi.ultimatescanner.databinding.FragmentHistoryBinding
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.adapter.HistoryListAdapter
 import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference
 
 class HistoryTabFragment : TabFragment(R.layout.fragment_history) {
 
-    private lateinit var binding: ActivityHistoryBinding
+    private lateinit var binding: FragmentHistoryBinding
     private val repo by lazy { AnalyzeRepo(WeakReference(context)) }
     private val adapter by lazy { HistoryListAdapter() }
 
@@ -31,7 +31,7 @@ class HistoryTabFragment : TabFragment(R.layout.fragment_history) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding = ActivityHistoryBinding.bind(view)
+        binding = FragmentHistoryBinding.bind(view)
 
         initToolbar()
 

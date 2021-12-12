@@ -44,7 +44,7 @@
             android:layout_marginEnd="@dimen/margin_16"
             android:layout_marginBottom="@dimen/margin_16"
             android:src="@drawable/ic_baseline_play_arrow_24"
-            app:backgroundTint="@color/yellow"
+            app:backgroundTint="@color/primary"
             app:fabCustomSize="@dimen/capture_button_size"
             app:maxImageSize="32dp"
             app:tint="@color/black" />
@@ -69,7 +69,7 @@
         android:layout_gravity="center"
         android:background="@drawable/background_corner_white"
         android:indeterminate="true"
-        android:indeterminateTint="@color/teal_700"
+        android:indeterminateTint="@color/primary"
         android:padding="@dimen/corner_4" />
 
 </FrameLayout>

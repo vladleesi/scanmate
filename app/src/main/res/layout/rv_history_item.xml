@@ -14,7 +14,7 @@
         android:autoLink="web"
         android:linksClickable="true"
         android:textColor="@color/black"
-        android:textColorLink="@color/purple_700"
+        android:textColorLink="@color/orange"
         android:textIsSelectable="true"
         android:textSize="16sp"
         tools:text="asdsada:\nasdasd https://medium.com/androiddevelopers/room-rxjava-acb0cd4f3757" />

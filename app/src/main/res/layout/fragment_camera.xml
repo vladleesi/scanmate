@@ -69,23 +69,18 @@
         android:contentDescription="@string/text_description"
         android:src="@drawable/ic_baseline_image_search_24"
         android:visibility="invisible"
-        app:backgroundTint="@color/blue"
+        app:backgroundTint="@color/white"
         app:tint="@color/black" />
 
     <ru.vladleesi.ultimatescanner.ui.view.LockableTabLayout
         android:id="@+id/camera_tabs"
+        style="@style/TabCornerStyle"
         android:layout_width="match_parent"
         android:layout_height="28dp"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_8"
-        android:background="@android:color/transparent"
-        app:tabBackground="@drawable/tab_background_corner_24"
         app:tabGravity="center"
-        app:tabIndicator="@null"
-        app:tabMode="scrollable"
-        app:tabSelectedTextColor="@color/black"
-        app:tabTextAppearance="@style/TabTextAppearance"
-        app:tabTextColor="@color/white" />
+        app:tabMode="scrollable" />
 
 </RelativeLayout>

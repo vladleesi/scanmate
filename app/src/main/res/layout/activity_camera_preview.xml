@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/text_description"
             android:src="@drawable/ic_baseline_image_search_24"
-            app:backgroundTint="@color/yellow"
+            app:backgroundTint="@color/white"
             app:layout_anchor="@id/bottom_app_bar"
             app:tint="@color/black" />
 

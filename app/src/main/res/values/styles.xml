@@ -3,9 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
 
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/blue_dark</item>
-        <item name="colorAccent">@color/blue</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/primary</item>
 
         <item name="android:navigationBarColor">@color/black</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
@@ -33,7 +33,18 @@
         <!--        <item name="android:background">@drawable/background_ripple_corner_gradient</item>-->
     </style>
 
-    <!-- Tabs title style -->
+    <!-- Tab style -->
+    <style name="TabCornerStyle" parent="Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@style/TabTextAppearance</item>
+        <item name="tabSelectedTextColor">@color/black</item>
+        <item name="tabTextColor">@color/white</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="tabBackground">@drawable/tab_background_corner_24</item>
+        <item name="tabIndicator">@null</item>
+    </style>
+
+
+    <!-- Tab title style -->
     <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textSize">14sp</item>

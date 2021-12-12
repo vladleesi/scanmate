@@ -119,13 +119,13 @@ class CameraTabFragment :
                 CameraModeHolder.cameraMode = CameraMode.MANUAL_MODE
             }
         }
-        if (CameraModeHolder.currentFragment == TabFragments.CAMERA)
+        if (CameraModeHolder.currentFragment == TabFragments.CAMERA) {
             VoiceEventBus.toVoice(tabAdapter.getPageTitle(position).toString())
-
-        binding.root.performHapticFeedback(
-            HapticFeedbackConstants.VIRTUAL_KEY,
-            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
-        )
+            binding.root.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+            )
+        }
     }
 
     private fun clearCacheDirectory() {

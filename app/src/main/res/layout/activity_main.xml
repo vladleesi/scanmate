@@ -20,16 +20,11 @@
 
         <ru.vladleesi.ultimatescanner.ui.view.LockableTabLayout
             android:id="@+id/tabs"
+            style="@style/TabCornerStyle"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:layout_gravity="center"
-            android:background="@color/black"
-            app:tabBackground="@drawable/tab_background_corner_24"
-            app:tabIndicator="@null"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/black"
-            app:tabTextAppearance="@style/TabTextAppearance"
-            app:tabTextColor="@color/white" />
+            app:tabMode="scrollable" />
 
     </FrameLayout>
 

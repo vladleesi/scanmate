@@ -9,14 +9,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
-import ru.vladleesi.ultimatescanner.databinding.ActivityHistoryBinding
+import ru.vladleesi.ultimatescanner.databinding.FragmentHistoryBinding
 import ru.vladleesi.ultimatescanner.extensions.showToast
 import ru.vladleesi.ultimatescanner.ui.adapter.HistoryListAdapter
 import java.lang.ref.WeakReference
 
 class HistoryActivity : AppCompatActivity() {
 
-    private val binding by lazy { ActivityHistoryBinding.inflate(layoutInflater) }
+    private val binding by lazy { FragmentHistoryBinding.inflate(layoutInflater) }
     private val repo by lazy { AnalyzeRepo(WeakReference(applicationContext)) }
     private val adapter by lazy { HistoryListAdapter() }
 

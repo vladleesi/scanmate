@@ -4,12 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import ru.vladleesi.ultimatescanner.R
-import ru.vladleesi.ultimatescanner.databinding.ActivitySettingsBinding
+import ru.vladleesi.ultimatescanner.databinding.FragmentSettingsBinding
 import ru.vladleesi.ultimatescanner.ui.fragments.SettingsPreferenceFragment
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val binding by lazy { ActivitySettingsBinding.inflate(layoutInflater) }
+    private val binding by lazy { FragmentSettingsBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
