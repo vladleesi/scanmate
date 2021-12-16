@@ -13,7 +13,7 @@ class CameraTabAdapter(fm: FragmentManager) :
         EmptyFragment.newInstance()
     )
 
-    private val titleList = listOf("Авто-детект", "Ручной режим")
+    private val titleList = listOf("Штрихкод", "Ручной режим")
 
     override fun getCount(): Int = titleList.size
 
