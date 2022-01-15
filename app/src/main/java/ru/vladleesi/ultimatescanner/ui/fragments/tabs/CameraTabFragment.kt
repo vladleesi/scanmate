@@ -145,17 +145,6 @@ class CameraTabFragment :
         mOutputDirectory?.listFiles()?.forEach { file -> file.delete() }
     }
 
-    override fun onStart() {
-        super.onStart()
-        isDetectEnabled = true
-    }
-
-    override fun onStop() {
-        super.onStop()
-        isDetectEnabled = false
-        cameraHelper
-    }
-
     override fun processResult(
         barcodeResults: List<FirebaseVisionBarcode>,
         capturedImageWidth: Int,
