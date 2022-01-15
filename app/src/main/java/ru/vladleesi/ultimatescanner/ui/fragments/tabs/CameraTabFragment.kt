@@ -39,7 +39,6 @@ class CameraTabFragment :
     private val mOutputDirectory by lazy { context?.externalCacheDir }
 
     private lateinit var cameraExecutor: ExecutorService
-    private var isDetectEnabled: Boolean = true
     private val barcodeMap: HashMap<String, String> = hashMapOf()
 
     private val tabAdapter by lazy { CameraTabAdapter(childFragmentManager) }
@@ -117,13 +116,11 @@ class CameraTabFragment :
     private fun selectMode(position: Int) {
         when (position) {
             0 -> {
-                isDetectEnabled = true
                 binding.fabCaptureContainer.invisible()
                 binding.fabCapture.hide()
                 CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
             }
             1 -> {
-                isDetectEnabled = false
                 binding.fabCapture.show()
                 binding.fabCaptureContainer.visible()
                 CameraModeHolder.cameraMode = CameraMode.MANUAL_MODE
@@ -165,8 +162,7 @@ class CameraTabFragment :
             barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
         }
 
-        if (barcodeResults.isNotEmpty() && isDetectEnabled) {
-            isDetectEnabled = false
+        if (barcodeResults.isNotEmpty() && CameraModeHolder.cameraMode == CameraMode.AUTO_MODE) {
             cameraHelper.takePhoto()
             parentActivity?.playSound()
         }
