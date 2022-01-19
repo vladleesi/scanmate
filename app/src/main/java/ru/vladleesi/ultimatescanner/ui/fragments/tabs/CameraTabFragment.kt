@@ -56,6 +56,7 @@ class CameraTabFragment :
 
     private val mCameraInitLiveData = MutableLiveData<Boolean>()
     private val mStartedLiveData = MutableLiveData<Boolean>()
+    private var isAutoDetectEnable = false
 
     private val permissionResult =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isSuccess ->
@@ -100,6 +101,10 @@ class CameraTabFragment :
         when (CameraModeHolder.cameraMode) {
             CameraMode.AUTO_MODE, CameraMode.UNDEFINED_MODE -> binding.cameraPager.currentItem = 0
             CameraMode.MANUAL_MODE -> binding.cameraPager.currentItem = 1
+        }
+
+        mStartedLiveData.observe(viewLifecycleOwner) { onResume ->
+            isAutoDetectEnable = onResume && CameraModeHolder.cameraMode == CameraMode.AUTO_MODE
         }
     }
 
@@ -162,9 +167,13 @@ class CameraTabFragment :
             barcodeMap[getType(it.valueType)] = it.rawValue ?: ""
         }
 
-        if (barcodeResults.isNotEmpty() && CameraModeHolder.cameraMode == CameraMode.AUTO_MODE) {
-            cameraHelper.takePhoto()
+        if (barcodeResults.isNotEmpty() &&
+            CameraModeHolder.cameraMode == CameraMode.AUTO_MODE &&
+            isAutoDetectEnable
+        ) {
+            isAutoDetectEnable = false
             parentActivity?.playSound()
+            cameraHelper.takePhoto()
         }
     }
 
