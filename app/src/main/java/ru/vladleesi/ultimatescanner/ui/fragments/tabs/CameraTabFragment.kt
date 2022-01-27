@@ -121,12 +121,14 @@ class CameraTabFragment :
     private fun selectMode(position: Int) {
         when (position) {
             0 -> {
-                binding.fabCaptureContainer.invisible()
                 binding.fabCapture.hide()
+                isAutoDetectEnable = true
+                binding.fabCaptureContainer.invisible()
                 CameraModeHolder.cameraMode = CameraMode.AUTO_MODE
             }
             1 -> {
                 binding.fabCapture.show()
+                isAutoDetectEnable = false
                 binding.fabCaptureContainer.visible()
                 CameraModeHolder.cameraMode = CameraMode.MANUAL_MODE
             }
