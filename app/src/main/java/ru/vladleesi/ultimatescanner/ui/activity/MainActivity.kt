@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
@@ -29,9 +27,6 @@ class MainActivity :
     SettingsManager {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
-    @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
 
     @Inject
     lateinit var voiceMaker: VoiceMaker
@@ -64,7 +59,9 @@ class MainActivity :
         //  - Автосвет
         //  - Анимация скольжения инликатора вкладок
 
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundleOf())
+        // TODO:
+        //  Взять в работу!
+        //  Инициализация озвучки до камеры (есть лаг при запуске)
 
         binding.fragmentContainer.adapter = tabAdapter
         binding.fragmentContainer.currentItem = tabAdapter.middle
@@ -114,9 +111,7 @@ class MainActivity :
         VoiceEventBus.toVoice(getString(R.string.page_title_auto_detect))
 
         GlobalScope.launch(coroutineExceptionHandler) {
-            VoiceEventBus.flow.collect {
-                voiceMaker.voice(it)
-            }
+            VoiceEventBus.flow.collect(voiceMaker::voice)
         }
     }
 

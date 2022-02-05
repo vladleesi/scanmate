@@ -1,9 +1,9 @@
 package ru.vladleesi.ultimatescanner.ui.accessibility
 
 import android.content.Context
-import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.ui.activity.Speecher
@@ -14,20 +14,21 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
     TextToSpeech.OnInitListener, Speecher {
 
     private val tts = TextToSpeech(weakContext.get(), this)
+    private val ttsParams = bundleOf(TextToSpeech.Engine.KEY_PARAM_VOLUME to 1f)
 
     private var isEnable = false
 
-    private val ttsParams by lazy {
-        Bundle().apply {
-            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
-        }
-    }
+    private var voiceInitListener: VoiceInitListener? = null
 
     init {
         getDefaultSharedPreferences(weakContext.get())?.let { prefs ->
             val prefsKey = weakContext.get()?.getString(R.string.settings_sound_maker)
             setEnable(prefs.getBoolean(prefsKey, false))
         }
+    }
+
+    fun setVoiceInitListener(voiceInitListener: VoiceInitListener) {
+        this.voiceInitListener = voiceInitListener
     }
 
     fun setEnable(isEnable: Boolean) {
@@ -63,6 +64,11 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
         } else if (status == TextToSpeech.ERROR) {
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
+        voiceInitListener?.onInitComplete(isInitSuccess)
+    }
+
+    interface VoiceInitListener {
+        fun onInitComplete(isInitSuccess: Boolean)
     }
 
     companion object {
