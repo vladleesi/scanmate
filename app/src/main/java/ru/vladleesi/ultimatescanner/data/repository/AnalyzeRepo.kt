@@ -15,6 +15,7 @@ import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 import ru.vladleesi.ultimatescanner.data.remote.RetrofitClient
 import ru.vladleesi.ultimatescanner.data.remote.adapter.toJson
 import ru.vladleesi.ultimatescanner.data.remote.model.AnalyzeResultApi
+import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraModeHolder
 import ru.vladleesi.ultimatescanner.ui.model.state.ResultState
 import ru.vladleesi.ultimatescanner.utils.FileUtils
 import java.io.File
@@ -73,6 +74,7 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
             .setType(MultipartBody.FORM)
             .addFormDataPart("image", file.name, file.asRequestBody(mediaType))
             .addFormDataPart("discovered", discovered.toJson())
+            .addFormDataPart("cameraMode", CameraModeHolder.cameraMode.name)
             .build()
 
         val response = service.analyze(endpointFromPrefs, requestBody)

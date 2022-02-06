@@ -16,6 +16,7 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
     private val tts = TextToSpeech(weakContext.get(), this)
     private val ttsParams = bundleOf(TextToSpeech.Engine.KEY_PARAM_VOLUME to 1f)
 
+    private var isInitiated = false
     private var isEnable = false
 
     private var voiceInitListener: VoiceInitListener? = null
@@ -26,6 +27,8 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
             setEnable(prefs.getBoolean(prefsKey, false))
         }
     }
+
+    fun isTTSInitiated() = isInitiated
 
     fun setVoiceInitListener(voiceInitListener: VoiceInitListener) {
         this.voiceInitListener = voiceInitListener
@@ -65,6 +68,7 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
         voiceInitListener?.onInitComplete(isInitSuccess)
+        isInitiated = isInitSuccess
     }
 
     interface VoiceInitListener {

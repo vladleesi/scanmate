@@ -39,9 +39,15 @@ class SplashActivity : AppCompatActivity(), VoiceMaker.VoiceInitListener {
         }
 
         findViewById<ImageView>(R.id.image_splash_logo).startAnimation(anim)
+
+        if (voiceMaker.isTTSInitiated())
+            closeActivity()
     }
 
-    override fun onInitComplete(isInitSuccess: Boolean) {
+    override fun onInitComplete(isInitSuccess: Boolean) = closeActivity()
+
+    private fun closeActivity() {
         startActivity(Intent(baseContext, MainActivity::class.java))
+        finish()
     }
 }
