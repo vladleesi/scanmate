@@ -19,8 +19,9 @@ class HistoryListAdapter : RecyclerView.Adapter<HistoryListAdapter.HistoryItemVi
     fun clearData(notify: Boolean) {
         if (dataList.isNotEmpty()) {
             dataList.clear()
-            if (notify)
+            if (notify) {
                 notifyDataSetChanged()
+            }
         }
     }
 

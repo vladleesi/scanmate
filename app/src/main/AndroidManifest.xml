@@ -3,9 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="ru.vladleesi.ultimatescanner">
 
-    <!-- Internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
@@ -48,20 +46,9 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name="ru.vladleesi.ultimatescanner.ui.activity.CameraPreviewActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="ru.vladleesi.ultimatescanner.ui.activity.SettingsActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="ru.vladleesi.ultimatescanner.ui.activity.HistoryActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="ru.vladleesi.ultimatescanner.ui.activity.CaptureActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.activity.SwitchActivity"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.activity.SplashActivity"
             android:screenOrientation="portrait">
@@ -70,6 +57,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package ru.vladleesi.ultimatescanner.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -27,6 +28,7 @@ class SwipeViewPager : ViewPager {
         this.direction = direction
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return if (isSwipeAllowed(event)) {
             super.onTouchEvent(event)

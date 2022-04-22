@@ -8,6 +8,7 @@
 
     <string name="tv_copy">Copy</string>
     <string name="tv_play">Play</string>
+    <string name="tv_copied">Copied</string>
     <string name="tv_stop">Stop</string>
     <string name="tv_settings">Настройки</string>
     <string name="tv_history">История</string>

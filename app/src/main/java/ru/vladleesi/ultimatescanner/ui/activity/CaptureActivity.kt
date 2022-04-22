@@ -167,7 +167,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
             viewBinding.tvText.text = text
 
             viewBinding.mbTextCopy.setOnClickListener {
-                viewBinding.mbTextCopy.text = "Copied"
+                viewBinding.mbTextCopy.text = getString(R.string.tv_copied)
                 viewBinding.mbTextCopy.icon = getDrawableCompat(R.drawable.ic_baseline_check_24)
                 viewBinding.mbTextCopy.isEnabled = false
                 viewBinding.tvText.copyToClipboard()
@@ -217,6 +217,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
             tts.setSpeechRate(0.9f)
             isInitSuccess = true
         } else if (status == TextToSpeech.ERROR) {
+            // ignore
         }
         showToast("TTS init: $isInitSuccess\n Status: $status")
     }

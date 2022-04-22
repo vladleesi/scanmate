@@ -14,8 +14,7 @@ data class Product(
         parcel.readString(),
         parcel.readString(),
         parcel.createByteArray()
-    ) {
-    }
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
