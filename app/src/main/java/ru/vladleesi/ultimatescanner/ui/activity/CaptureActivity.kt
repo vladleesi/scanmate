@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
@@ -41,11 +41,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
     private val uri by lazy { intent.getParcelableExtra<Uri>(CAPTURED_URI) }
 
     private lateinit var tts: TextToSpeech
-    private val ttsParams by lazy {
-        Bundle().apply {
-            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f)
-        }
-    }
+    private val ttsParams by lazy { bundleOf(TextToSpeech.Engine.KEY_PARAM_VOLUME to 1f) }
 
     private val handler = CoroutineExceptionHandler { _, throwable ->
         lifecycleScope.launch {
@@ -62,11 +58,9 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
         binding.ivBack.setOnClickListener { onBackPressed() }
 
         val bitmap = BitmapFactory.decodeFile(uri?.let { FileUtils.getPathFrom(baseContext, it) })
-
         binding.ivCapturedImage.setImageBitmap(bitmap)
 
-        val barcodeMap =
-            intent.getSerializableExtra(BARCODE_MAP) as? HashMap<String, String>
+        val barcodeMap = intent.getSerializableExtra(BARCODE_MAP) as? HashMap<String, String>
         barcodeMap?.let {
             GlobalScope.launch(handler) {
                 analyzeRepo.saveToHistory(it)
@@ -122,15 +116,17 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
 
     private fun initGlobalTextSpeaker(ocrData: OcrData?) {
         if (ocrData?.text?.isNotEmpty() == true) {
-            binding.fabVoice.visible()
-            binding.fabVoice.setOnClickListener {
-                tts.setOnUtteranceProgressListener(GlobalUtteranceProgressListener())
-                if (tts.isSpeaking) {
-                    tts.stop()
-                    binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_play_arrow_24))
-                } else {
-                    binding.fabVoice.setImageDrawable(getDrawableCompat(R.drawable.ic_baseline_stop_24))
-                    voice(ocrData.text.toString())
+            with(binding.fabVoice) {
+                visible()
+                setOnClickListener {
+                    tts.setOnUtteranceProgressListener(GlobalUtteranceProgressListener())
+                    if (tts.isSpeaking) {
+                        tts.stop()
+                        setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    } else {
+                        setImageResource(R.drawable.ic_baseline_stop_24)
+                        voice(ocrData.text.toString())
+                    }
                 }
             }
         }
@@ -245,6 +241,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
             viewBinding.mbTextToSpeech.text = getString(R.string.tv_play)
         }
 
+        @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String?) {
             viewBinding.mbTextToSpeech.icon =
                 getDrawableCompat(R.drawable.ic_baseline_play_arrow_24)
@@ -255,34 +252,16 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
     private inner class GlobalUtteranceProgressListener : UtteranceProgressListener() {
 
         override fun onStart(utteranceId: String?) {
-            binding.fabVoice.setImageDrawable(
-                ContextCompat.getDrawable(
-                    baseContext,
-                    R.drawable.ic_baseline_stop_24
-                )
-            )
+            binding.fabVoice.setImageResource(R.drawable.ic_baseline_stop_24)
         }
 
         override fun onDone(utteranceId: String?) {
-            binding.fabVoice.setImageDrawable(
-                ContextCompat.getDrawable(
-                    baseContext,
-                    R.drawable.ic_baseline_play_arrow_24
-                )
-            )
+            binding.fabVoice.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         }
 
+        @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String?) {
-            binding.fabVoice.setImageDrawable(
-                ContextCompat.getDrawable(
-                    baseContext,
-                    R.drawable.ic_baseline_play_arrow_24
-                )
-            )
+            binding.fabVoice.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         }
-    }
-
-    private companion object {
-        private const val TAG = "CaptureActivity"
     }
 }

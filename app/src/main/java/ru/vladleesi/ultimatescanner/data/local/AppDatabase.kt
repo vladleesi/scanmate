@@ -20,16 +20,18 @@ abstract class AppDatabase : RoomDatabase() {
         private var instance: AppDatabase? = null
         private val LOCK = Any()
 
-        operator fun invoke(context: WeakReference<Context>) = instance ?: synchronized(LOCK) {
-            instance ?: context.get()
-                ?.let { buildDatabase(it).also { appDatabase -> instance = appDatabase } }
+        private const val DB_NAME = "scanner.db"
+
+        operator fun invoke(weakContext: WeakReference<Context>) = instance ?: synchronized(LOCK) {
+            instance ?: weakContext.get()?.let { context ->
+                buildDatabase(context).also { appDatabase ->
+                    instance = appDatabase
+                }
+            }
         }
 
         private fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java, "scanner.db"
-            )
+            return Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
                 .fallbackToDestructiveMigration()
                 .build()
         }
