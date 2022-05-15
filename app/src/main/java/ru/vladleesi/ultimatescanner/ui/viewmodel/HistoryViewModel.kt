@@ -17,21 +17,15 @@ class HistoryViewModel @Inject constructor(private val repo: AnalyzeRepo) : Base
     val historyLiveData: LiveData<List<HistoryEntity>> = _historyLiveData
 
     fun clearHistory() {
-        globalInvoke {
+        invoke {
             repo.clearHistory()
-            viewModelInvoke {
-                _clearLiveData.postValue(true)
-            }
+            _clearLiveData.postValue(true)
         }
     }
 
     fun loadHistory() {
-        globalInvoke {
-            repo.getHistory()?.let { historyList ->
-                viewModelInvoke {
-                    _historyLiveData.postValue(historyList)
-                }
-            }
+        invoke {
+            repo.getHistory()?.let(_historyLiveData::postValue)
         }
     }
 }
