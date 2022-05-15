@@ -32,7 +32,7 @@ class CameraHelper(
 ) {
 
     private val cameraExecutor = Executors.newSingleThreadExecutor()
-    private val mainExecutor = ContextCompat.getMainExecutor(weakContext.get())
+    private val mainExecutor = ContextCompat.getMainExecutor(weakContext.get()!!)
 
     // Used to bind the lifecycle of cameras to the lifecycle owner
     private val cameraProvider: ProcessCameraProvider? by lazy { cameraProviderFuture?.get() }

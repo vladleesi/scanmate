@@ -7,8 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import ru.vladleesi.ultimatescanner.data.repository.AnalyzeRepo
 import ru.vladleesi.ultimatescanner.ui.accessibility.SoundMaker
 import ru.vladleesi.ultimatescanner.ui.accessibility.VoiceMaker
+import ru.vladleesi.ultimatescanner.utils.Notifier
+import java.lang.ref.WeakReference
 import javax.inject.Singleton
 
 @Module
@@ -29,4 +32,14 @@ object ApplicationModule {
     @Provides
     fun bindTTS(@ApplicationContext context: Context): VoiceMaker =
         VoiceMaker.getInstance(context)
+
+    @Singleton
+    @Provides
+    fun bindNotifier(@ApplicationContext context: Context): Notifier =
+        Notifier(WeakReference(context))
+
+    @Singleton
+    @Provides
+    fun bindAnalyzeRepo(@ApplicationContext context: Context): AnalyzeRepo =
+        AnalyzeRepo(WeakReference(context))
 }
