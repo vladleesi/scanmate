@@ -2,6 +2,7 @@ package ru.vladleesi.ultimatescanner.ui.fragments.tabs
 
 import android.os.Bundle
 import android.view.View
+import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.databinding.FragmentSettingsBinding
 import ru.vladleesi.ultimatescanner.ui.activity.MainActivity
@@ -11,7 +12,7 @@ import ru.vladleesi.ultimatescanner.ui.fragments.TabFragment
 
 class SettingsTabFragment : TabFragment(R.layout.fragment_settings) {
 
-    private lateinit var binding: FragmentSettingsBinding
+    private val binding by viewBinding(FragmentSettingsBinding::bind)
 
     private val mSettingsManager by lazy { parent<MainActivity>() as SettingsManager }
 
@@ -19,8 +20,6 @@ class SettingsTabFragment : TabFragment(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding = FragmentSettingsBinding.bind(view)
 
         initToolbar()
 
@@ -44,6 +43,6 @@ class SettingsTabFragment : TabFragment(R.layout.fragment_settings) {
     companion object {
         const val TAG = "SettingsFragment"
 
-        fun newInstance() = SettingsTabFragment().apply { arguments = Bundle() }
+        fun newInstance() = SettingsTabFragment()
     }
 }
