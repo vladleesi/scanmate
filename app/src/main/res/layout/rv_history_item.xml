@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_value"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/margin_16">
-
-    <TextView
-        android:id="@+id/tv_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_4"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:textColor="@color/black"
-        android:textColorLink="@color/orange"
-        android:textIsSelectable="true"
-        android:textSize="16sp"
-        tools:text="asdsada:\nasdasd https://medium.com/androiddevelopers/room-rxjava-acb0cd4f3757" />
-
-</LinearLayout>
+    android:layout_marginTop="@dimen/margin_4"
+    android:autoLink="web"
+    android:linksClickable="true"
+    android:textColor="@color/black"
+    android:textColorLink="@color/orange"
+    android:textIsSelectable="true"
+    android:textSize="16sp" />

@@ -44,10 +44,10 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
     }
 
     override fun stop() {
-        tts.stopWithChecking()
+        stopWithChecking()
     }
 
-    private fun TextToSpeech.stopWithChecking() {
+    private fun stopWithChecking() {
         if (tts.isSpeaking) tts.stop()
     }
 
@@ -64,8 +64,6 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
             tts.setPitch(1.3f)
             tts.setSpeechRate(0.9f)
             isInitSuccess = true
-        } else if (status == TextToSpeech.ERROR) {
-            // ignore
         }
         Log.d(TAG, "TTS init: $isInitSuccess\n Status: $status")
         voiceInitListener?.onInitComplete(isInitSuccess)

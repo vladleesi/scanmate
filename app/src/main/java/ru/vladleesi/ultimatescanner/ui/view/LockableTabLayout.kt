@@ -5,6 +5,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import com.google.android.material.tabs.TabLayout
 
+/**
+ * [TabLayout] with disabled tab's touching
+ */
 class LockableTabLayout : TabLayout {
 
     private var isEnable: Boolean = false

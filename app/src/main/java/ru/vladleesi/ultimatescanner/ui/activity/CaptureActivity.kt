@@ -191,11 +191,11 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
 
     override fun stop() {
         if (::tts.isInitialized) {
-            tts.stopWithChecking()
+            stopWithChecking()
         }
     }
 
-    private fun TextToSpeech.stopWithChecking() {
+    private fun stopWithChecking() {
         if (tts.isSpeaking) tts.stop()
     }
 
@@ -212,8 +212,6 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
             tts.setPitch(1.3f)
             tts.setSpeechRate(0.9f)
             isInitSuccess = true
-        } else if (status == TextToSpeech.ERROR) {
-            // ignore
         }
         showToast("TTS init: $isInitSuccess\n Status: $status")
     }
@@ -222,7 +220,7 @@ class CaptureActivity : AppCompatActivity(), TextToSpeech.OnInitListener, Speech
         super.onDestroy()
 
         if (::tts.isInitialized) {
-            tts.stopWithChecking()
+            stopWithChecking()
             tts.shutdown()
         }
     }

@@ -9,6 +9,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Response
 import ru.vladleesi.ultimatescanner.R
 import ru.vladleesi.ultimatescanner.data.local.AppDatabase
 import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
@@ -57,8 +59,11 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
     suspend fun testConnection(): String {
         val response = service.testConnection(endpointFromPrefs)
-        return "${response.code()} ${response.message()} ${response.body()?.string() ?: ""}"
+        return buildTestConnectionMessage(response)
     }
+
+    private fun buildTestConnectionMessage(response: Response<ResponseBody>) =
+        "${response.code()} ${response.message()} ${response.body()?.string().orEmpty()}"
 
     suspend fun analyze(
         uri: Uri,
@@ -108,8 +113,6 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
     }
 
     private companion object {
-        private const val TAG = "AnalyzeRepo"
-
         private const val DEFAULT_BASE_URL = "http://test.ru"
         private const val DEFAULT_UPLOAD_ENDPOINT = "analyze"
     }
