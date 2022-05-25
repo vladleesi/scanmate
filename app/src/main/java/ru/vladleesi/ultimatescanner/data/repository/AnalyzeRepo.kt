@@ -17,6 +17,7 @@ import ru.vladleesi.ultimatescanner.data.local.entity.HistoryEntity
 import ru.vladleesi.ultimatescanner.data.remote.RetrofitClient
 import ru.vladleesi.ultimatescanner.data.remote.adapter.toJson
 import ru.vladleesi.ultimatescanner.data.remote.model.AnalyzeResultApi
+import ru.vladleesi.ultimatescanner.extensions.get
 import ru.vladleesi.ultimatescanner.ui.fragments.tabs.CameraModeHolder
 import ru.vladleesi.ultimatescanner.ui.model.state.ResultState
 import ru.vladleesi.ultimatescanner.utils.FileUtils
@@ -27,12 +28,14 @@ import java.util.*
 
 class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
-    private val baseUrlFromPrefs by lazy {
+    private val defaultPreferences =
         PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
-            .getString(
-                contextWeakReference.get()?.getString(R.string.settings_url),
-                DEFAULT_BASE_URL
-            ) ?: DEFAULT_BASE_URL
+
+    private val baseUrlFromPrefs by lazy {
+        defaultPreferences.get(
+            contextWeakReference.get()?.getString(R.string.settings_url),
+            DEFAULT_BASE_URL
+        ) ?: DEFAULT_BASE_URL
     }
 
     private val service by lazy { RetrofitClient().getAnalyzeService(baseUrlFromPrefs) }
@@ -40,11 +43,10 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
     private val appDatabase by lazy { AppDatabase.invoke(contextWeakReference) }
 
     private val endpointFromPrefs by lazy {
-        var endpoint = PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
-            .getString(
-                contextWeakReference.get()?.getString(R.string.settings_endpoint),
-                DEFAULT_UPLOAD_ENDPOINT
-            ) ?: DEFAULT_UPLOAD_ENDPOINT
+        var endpoint = defaultPreferences.get(
+            contextWeakReference.get()?.getString(R.string.settings_endpoint),
+            DEFAULT_UPLOAD_ENDPOINT
+        ) ?: DEFAULT_BASE_URL
 
         if (!baseUrlFromPrefs.endsWith("/") && !endpoint.startsWith("/")) {
             endpoint = "/$endpoint"
@@ -79,13 +81,14 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
         val requestBody: RequestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("image", file.name, file.asRequestBody(mediaType))
-            .addFormDataPart("discovered", discovered.toJson())
-            .addFormDataPart("cameraMode", CameraModeHolder.cameraMode.name)
+            .addFormDataPart(ANALYZE_QUERY_IMAGE, file.name, file.asRequestBody(mediaType))
+            .addFormDataPart(ANALYZE_QUERY_DISCOVERED, discovered.toJson())
+            .addFormDataPart(ANALYZE_QUERY_CAMERA_MODE, CameraModeHolder.cameraMode.name)
             .build()
 
         val response = service.analyze(endpointFromPrefs, requestBody)
-        return if (response.code() == 200) {
+
+        return if (response.isSuccessful) {
             ResultState.Success(response.body())
         } else {
             ResultState.Error(null)
@@ -94,10 +97,11 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
 
     suspend fun saveToHistory(result: Map<String, String>) {
         return withContext(Dispatchers.IO) {
-            val simpleDateFormatTo = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+            val simpleDateFormatTo = SimpleDateFormat(DATE_PATTERN_HISTORY, Locale.getDefault())
             val date = simpleDateFormatTo.format(Date())
-            result.forEach {
-                appDatabase?.historyDao()?.insert(HistoryEntity(it.key, it.value, date))
+            result.forEach { resultItem ->
+                val entity = HistoryEntity(resultItem.key, resultItem.value, date)
+                appDatabase?.historyDao()?.insert(entity)
             }
         }
     }
@@ -117,5 +121,11 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
     private companion object {
         private const val DEFAULT_BASE_URL = "http://test.ru"
         private const val DEFAULT_UPLOAD_ENDPOINT = "analyze"
+
+        private const val ANALYZE_QUERY_IMAGE = "image"
+        private const val ANALYZE_QUERY_DISCOVERED = "discovered"
+        private const val ANALYZE_QUERY_CAMERA_MODE = "cameraMode"
+
+        private const val DATE_PATTERN_HISTORY = "dd.MM.yyyy HH:mm:ss"
     }
 }

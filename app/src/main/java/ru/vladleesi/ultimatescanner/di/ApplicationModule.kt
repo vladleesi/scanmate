@@ -18,6 +18,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
 
+    // TODO: Separate into some scopes
+
     @Singleton
     @Provides
     fun bindAnalyticsService(@ApplicationContext context: Context): FirebaseAnalytics =
