@@ -5,12 +5,14 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import ru.vladleesi.ultimatescanner.data.interceptor.BaseUrlInterceptor
 import ru.vladleesi.ultimatescanner.data.remote.adapter.MoshiHolder
 import ru.vladleesi.ultimatescanner.data.remote.converter.NullOnEmptyConverterFactory
 import ru.vladleesi.ultimatescanner.data.remote.services.AnalyzeServices
+import ru.vladleesi.ultimatescanner.utils.PreferencesHelper
 import java.util.concurrent.TimeUnit
 
-class RetrofitClient {
+class RetrofitClient(private val preferencesHelper: PreferencesHelper) {
 
     @Throws(IllegalArgumentException::class)
     private fun buildClient(baseUrl: String): Retrofit {
@@ -31,6 +33,7 @@ class RetrofitClient {
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .writeTimeout(timeout, TimeUnit.SECONDS)
             .callTimeout(timeout, TimeUnit.SECONDS)
+            .addInterceptor(BaseUrlInterceptor(preferencesHelper))
             .addInterceptor(
                 HttpLoggingInterceptor().also {
                     it.level = HttpLoggingInterceptor.Level.BASIC
