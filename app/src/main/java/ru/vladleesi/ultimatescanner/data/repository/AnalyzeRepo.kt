@@ -71,6 +71,8 @@ class AnalyzeRepo(private val contextWeakReference: WeakReference<Context>) {
     ): ResultState<AnalyzeResultApi> {
 
         val filePath = FileUtils.getPathFrom(contextWeakReference.get(), uri)
+            ?: return ResultState.Error(null)
+
         val file = File(filePath)
 
         val mediaType = FileUtils.getMimeType(contextWeakReference, uri)?.toMediaTypeOrNull()
