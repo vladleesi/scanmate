@@ -10,16 +10,16 @@ import java.lang.ref.WeakReference
 class PreferencesHelper(private val contextWeakReference: WeakReference<Context>) {
 
     private val defaultPreferences =
-        PreferenceManager.getDefaultSharedPreferences(contextWeakReference.get())
+        contextWeakReference.get()?.let { PreferenceManager.getDefaultSharedPreferences(it) }
 
     fun baseUrl() =
-        defaultPreferences.get(
+        defaultPreferences?.get(
             contextWeakReference.get()?.getString(R.string.settings_url),
             AnalyzeRepo.DEFAULT_BASE_URL
         )?.removeSuffix("/")
 
     fun endpoint(): String {
-        var endpoint = defaultPreferences.get(
+        var endpoint = defaultPreferences?.get(
             contextWeakReference.get()?.getString(R.string.settings_endpoint),
             AnalyzeRepo.DEFAULT_UPLOAD_ENDPOINT
         ) ?: AnalyzeRepo.DEFAULT_UPLOAD_ENDPOINT

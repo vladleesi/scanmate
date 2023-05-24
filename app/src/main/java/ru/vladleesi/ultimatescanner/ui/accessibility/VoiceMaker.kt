@@ -22,9 +22,11 @@ class VoiceMaker private constructor(weakContext: WeakReference<Context>) :
     private var voiceInitListener: VoiceInitListener? = null
 
     init {
-        getDefaultSharedPreferences(weakContext.get())?.let { prefs ->
-            val prefsKey = weakContext.get()?.getString(R.string.settings_sound_maker)
-            setEnable(prefs.getBoolean(prefsKey, false))
+        weakContext.get()?.let {
+            getDefaultSharedPreferences(it)?.let { prefs ->
+                val prefsKey = weakContext.get()?.getString(R.string.settings_sound_maker)
+                setEnable(prefs.getBoolean(prefsKey, false))
+            }
         }
     }
 
