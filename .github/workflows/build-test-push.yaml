@@ -19,12 +19,15 @@ jobs:
           java-version: '17'
 
       - name: Create file
-        run: cat /app/google-services.json | base64
+        run: cat ${GITHUB_WORKSPACE}/app/google-services.json | base64
 
       - name: Putting data
-        env:
-          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $DATA > /app/google-services.json
+        id: write_file
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: 'google-services.json'
+          fileDir: '${GITHUB_WORKSPACE}/app/'
+          encodedString: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
