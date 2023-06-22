@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Scanner</string>
+    <string name="app_name">Scanmate</string>
 
     <string name="settings_sound_maker">sound_maker</string>
     <string name="settings_test_connection">test_connection</string>

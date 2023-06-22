@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ru.vladleesi.ultimatescanner.ui.view.BarcodeOverlay
+    <dev.vladleesi.scanmate.ui.view.BarcodeOverlay
         android:id="@+id/bo_barcode_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

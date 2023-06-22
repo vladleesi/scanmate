@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "ultimate-scanner-android"
+rootProject.name = "scanmate"
